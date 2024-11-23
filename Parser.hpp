@@ -28,7 +28,7 @@ public:
     //default constructor, on declaration we need a vector of tokens, then we definie the token as blank, and create a new cst object.
     Parser(std::vector<Token>& incommingVector) : tokenVector(incommingVector) ,cst(new CST()), newStatement(false){};
 
-    //a
+    //function wihch expects the given token, if its not the expected token then throw error, otherwise add token to cst
     void expect(const std::string& expected_value);
 
     //functions to check BNF standards
@@ -66,17 +66,24 @@ public:
     void double_quoted_string();
     void printTree() { cst->printTree(); }
     void PrintSymbolTableLL();
-    void convertToAST();
-    //New to intepreter
-    //
-    CST* getRootOfAST(){ return cst; }
-    SymbolTableList getRootofSymbolTableList() { return symbol_table_list; }
 
     //function to get get our cst tree with out tokens.
     CST* parse();
+
+    //converts our cst to ast
+    CST* convertToAST();
+
+    //New to intepreter,
+    void assignAddress();
+    void evaluateExpression(CSTNode *root, Token token);
+    void interpret();
+
+    //function that dont seem to wrok and arnt nessesary if our parser is our interpreter.
+    //CST* getRootOfAST(){ return cst; }
+    //SymbolTableList getRootofSymbolTableList() { return symbol_table_list; }   
 private:
 
-    //possition in our vector which is passed in, and current scope
+    //position in our vector which is passed in, and current scope
     int index = 0;
     int  scope = 0;
     bool newStatement = false;
@@ -85,24 +92,33 @@ private:
     bool inParamList = false;
     bool inFunction = false;
     bool inImportantExp = false;
+
     //vector passed in on declaration
     std::vector<Token> tokenVector;
+
     //concrete syntax tree object
     CST* cst;
+
     //symbol table class where we store our symbol table
     SymbolTableList symbol_table_list;
+
     //new symbol table element which we fill with data, then clear each time we grab a symbol.
     SymbolTable new_symbol_table;
-
     //need a vector that contain vector of symbol objects.
     //reason, each vector in our vectors object represents the param list for each functions parameters
     //with the symboltable objects in those representing the params of that function.
     std::vector<std::vector<SymbolTable>> paramLists;
     //temp vector to store the params of each function that will be added to the paramlists.
     std::vector<SymbolTable> tempParamList;
+
     //list of names used already and their scope
     std::vector<std::pair<std::string, int>> takenNames;
     std::string tempFunctionName = "";
+
+    //interpreter variables and private functions.
+    std::stack<int> stack;
+    void assignAddressHelper(CSTNode *root, int address);
+
 };
 
 

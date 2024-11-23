@@ -73,8 +73,34 @@ std::string SymbolTableList::findFunctionDataTypeHelper(SymbolNode *head, std::s
     return std::string();
 }
 
+//new interp function, to search the look up table and appl
 SymbolNode *SymbolTableList::lookupSymbol(const std::string &name) {
-    return nullptr;
+
+    //call our recursive helper
+    return lookupSymbolHelper(head->next_symbol_table_element,name);
+}
+
+SymbolNode *SymbolTableList::lookupSymbolHelper(SymbolNode* head,const std::string &name) {
+    //if the name matches the the id of the symbolnode then return that node,
+    //may need to keep track of if its a param list or not 
+
+    //if we hit the end of our symbol table then throw error
+    if (head == nullptr){
+        std::cout<<"searched for name: "<< name <<" but it is not present in the table."<<std::endl; 
+        throw;
+    }
+
+    //otherwise check if it is the name of the symbol table we are looking for
+    if(name == head->symbolTable.identifier_name ){
+        std::cout<<""<<std::endl;
+        printTable(head);
+        return head;
+    
+    //if ont progress through our linked symbol table list.
+    }else{
+        return lookupSymbolHelper(head->next_symbol_table_element,name);
+    }
+
 }
 
 

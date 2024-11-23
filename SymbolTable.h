@@ -3,6 +3,8 @@
 #include <string>
 #include <stack>
 #include <vector>
+#include <ostream>
+#include <iostream>
 
 struct SymbolTable {
     std::string identifier_name;
@@ -33,7 +35,12 @@ public:
     std::string findFunctionDataType(std::string functionToFind);
     std::string findFunctionDataTypeHelper(SymbolNode* head,std::string functionToFind);
     SymbolNode* lookupSymbol(const std::string& name);
-    void setAddress(SymbolNode* current, int address ) { current->_address = address; }
+    SymbolNode* lookupSymbolHelper(SymbolNode* head,const std::string& name);
+    void setAddress(SymbolNode* current, int address ) {
+         current->_address = address;
+         std::cout<<"setting address in symbol node current->_address: "<<current->_address<<std::endl;
+         }
+
     
 
 private:

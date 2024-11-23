@@ -17,13 +17,9 @@ CST* Parser::parse() {
     return cst;
 }
 
-
-
-
-
 /** **************************************************************************************
 Checks program meets BNF requirements
-@pre:
+@pre:uses the token vector in our parse data object.
 @post: recusively calls one of our functions based on the given token
  *****************************************************************************************/
 void Parser::program() {
@@ -74,14 +70,10 @@ void Parser::program() {
 
 }
 
-
-
-
-
 /** **************************************************************************************
 Checks main-procedure meets BNF requirements
-@pre:
-@post:
+@pre:uses the token vector in our parse data object.
+@post:parses through the function headers and main procedures.
  *****************************************************************************************/
 void Parser::main_procedure(){
     scope++;
@@ -104,15 +96,10 @@ void Parser::main_procedure(){
     block_statement();
 }
 
-
-
-
-
-
 /** **************************************************************************************
 Checks function_declaration meets BNF requirements
-@pre: is called when we find a function declaration
-@post:
+@pre:is called when we find a function declaration
+@post: handles generation of cst function block
  *****************************************************************************************/
 void Parser::function_declaration(){
     inFunction = true;
@@ -175,10 +162,6 @@ void Parser::function_declaration(){
 
 }
 
-
-
-
-
 /** **************************************************************************************
 Checks procedure_declaration meets BNF requirements
 @pre:
@@ -227,10 +210,6 @@ void Parser::procedure_declaration(){
     compound_statement();
     expect( "}" );
 }
-
-
-
-
 
 /** **************************************************************************************
 checks that the parameter lsit  follows BNF rules
@@ -307,10 +286,6 @@ void Parser::parameter_list(){
     inDeclaration = revertTo;
 }
 
-
-
-
-
 /** **************************************************************************************
 checks that the follwoing statement is a block statement that follows BNF rules
 @pre:
@@ -323,10 +298,6 @@ void Parser::block_statement(){
     }
     expect( "}");
 }
-
-
-
-
 
 /** **************************************************************************************
 checks that the follwoing statement is a compound statementthat follows BNF rules
@@ -342,10 +313,6 @@ void Parser::compound_statement() {
         compound_statement();
     }
 }
-
-
-
-
 
 /** **************************************************************************************
 checks that the follwoing statement makes sure its a statemtn defined in BNF
@@ -401,10 +368,6 @@ void Parser::statement(){
     }
 }
 
-
-
-
-
 /** **************************************************************************************
 checks that the follwoing statement is a return statement that follows BNF rules
 @pre:
@@ -421,18 +384,13 @@ void Parser::return_statement(){
     expect(";");
 }
 
-
-
-
-
-
 /** **************************************************************************************
 Checks declaration_statement meets BNF requirements
+if scope is 0 and name is already taken then error for being defined globally
+if scope is greater than 0 and name is already taken then error for being defined locally
 @pre:
 @post:
  *****************************************************************************************/
-//if scope is 0 and name is already taken then error for being defined globally
-//if scope is greater than 0 and name is already taken then error for being defined locally
 void Parser::declaration_statement(){
     std::cout<<"in declaration_statement"<<std::endl;
     //if we recieve a specifier(data type)
@@ -491,10 +449,6 @@ void Parser::declaration_statement(){
     }
 }
 
-
-
-
-
 /** **************************************************************************************
 checks that the follwoing function is a user_defined_function  that follows BNF rules
 @pre:
@@ -516,10 +470,6 @@ void Parser::user_defined_function(){
 
 }
 
-
-
-
-
 /** **************************************************************************************
 checks that the follwoing function is a getchar function that follows BNF rules
 @pre:
@@ -534,10 +484,6 @@ void Parser::getchar_function(){
     expect(")");
 
 }
-
-
-
-
 
 /** **************************************************************************************
 checks that the follwoing statement is a printf statement that follows BNF rules
@@ -570,10 +516,6 @@ void Parser::printf_statement(){
 
 }
 
-
-
-
-
 /** **************************************************************************************
 checks that the follwoing statement is a assignment statement that follows BNF rules
 @pre:
@@ -601,11 +543,6 @@ void Parser::assignment_statement(){
     expect(";");
     inImportantExp = false;
 }
-
-
-
-
-
 
 /** **************************************************************************************
 checks that the follwoing statement is an iteration statement that follows BNF rules
@@ -655,10 +592,6 @@ void Parser::iteration_statement() {
     }
 }
 
-
-
-
-
 /** **************************************************************************************
 checks that the follwoing statement is a selection statement that follows BNF rules
 @pre: when token starts a if
@@ -702,10 +635,6 @@ void Parser::selection_statement(){
         }
     }
 }
-
-
-
-
 
 /** **************************************************************************************
 checks that the follwoing statement is a initialization expression that follows BNF rules
@@ -799,9 +728,6 @@ void Parser::expression(){
         expect(")");
     }
 }
-
-
-
 
 
 /** **************************************************************************************
@@ -1471,9 +1397,105 @@ void Parser::PrintSymbolTableLL( ){
     symbol_table_list.PrintSymbolTableList();
 }
 
-
-void Parser::convertToAST(){
+//converts cst to ast, then returns the ast in cst
+CST* Parser::convertToAST(){
     cst->cstToAst();
+    return cst;
 }
+
+void Parser::assignAddress(){
+    std::cout<<"starting adressing of ast"<<std::endl;
+    assignAddressHelper(cst->getRoot(), 0);
+}
+//function applies a address to every node in our ast
+
+void Parser::assignAddressHelper(CSTNode *root, int address) {
+
+    //if nullptr then return
+    if ( root == nullptr ) {
+        return;
+    }
+
+    std::cout<<" Address: "<<address<<" token: "<<root->getToken().getTokenString()<<std::endl;
+
+    //if right is not null, then traverse to the right sibling
+    if (root->getRight() != nullptr ){
+        assignAddressHelper(root->getRight(), address+1);
+    
+    //if left is not nullptr traverse left sibling
+    }else if ( root->getLeft() != nullptr ){
+        
+        //set address of the token in the node to the current address
+        root->getToken().setAddress(address);
+
+        //if the token is a function wee need to look it up
+        if(root->getToken().isFunction()){
+             
+            //if the token is main thenwe need to look up 
+            if (root->getToken().isMain()){
+
+                std::cout<<"address to main: "<< root->getToken().getFunctionName() <<std::endl;
+                symbol_table_list.setAddress( symbol_table_list.lookupSymbol( root->getToken().getFunctionName() ), address);
+                //check to see if address is set properly.
+
+                //push the main function onto the stack to get us started when interpreting.
+                stack.push(address);
+                
+            }else{
+                std::cout<<"address to function: "<< root->getToken().getFunctionName() <<std::endl;
+                symbol_table_list.setAddress( symbol_table_list.lookupSymbol( root->getToken().getFunctionName() ), address);
+            }
+            
+        }
+        address++;
+
+        assignAddressHelper(root->getLeft(), address);
+    }
+
+}
+
+
+void Parser::evaluateExpression(CSTNode *root, Token token){
+
+}
+
+void Parser::interpret() {
+    int PC = 0;
+
+    while ( !stack.empty() ){
+
+        CSTNode* mainNode = cst->getRoot();
+        if (mainNode != nullptr) {
+
+            CSTNode *currentNode = mainNode;
+            std::string statement = currentNode->getToken().getTokenString();
+
+            if (statement == "DECLARATION") {
+
+            } else if (statement == "DECLARATION" || statement == "BEGIN BLOCK" ||
+                       statement == "END BLOCK" || statement == "ELSE") {
+                PC++;
+            } else if (statement == "ASSIGNMENT") {
+
+            } else if (statement == "IF") {
+
+            } else if (statement == "RETURN") {
+
+            } else if (statement == "PRINTF") {
+
+            } else if (statement == "FOR EXPRESSION 1") {
+
+            } else if (statement == "FOR EXPRESSION 2") {
+
+            } else if (statement == "FOR EXPRESSION 3") {
+
+            }
+            std::cout << std::endl;
+        }
+    }
+
+}
+
+
 
 

@@ -122,6 +122,7 @@ void CST::cstToAst(){
     //our new root
     Token token(0,0);
     token.setIdentifier("BEGIN PROGRAM");
+
     CSTNode* astRoot = new CSTNode(token);    
 
     //set up a queue
@@ -155,13 +156,30 @@ void CST::cstToAst(){
                 std::cout<<"found DECLARATION with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token.setIdentifier("DECLARATION");
-                if ( current->getRight()->getToken().getTokenString() == "main" ){
-                    current->setIsMain();
-                    current->setFunctionName("main");
-                } else {
-                    current->setisFunction();
-                    current->setFunctionName(current->getRight()->getToken().getTokenString());
+
+                std::cout<<"lineByLine.front().getTokenString(): "<<lineByLine.front().getTokenString()<<std::endl;
+
+                //if the token is procedure, then set the token to be the main
+                if(lineByLine.front().getTokenString() == "procedure" ){
+                    //std::cout<<"found main for interpretor -------------------------------------------------------------------------- "<<std::endl;
+                    token.setisFunction();
+
+                    if(lineByLine[1].getTokenString() == "main"){
+                        token.setIsMain();
+                        token.setFunctionName("main");
+                        token.print();
+                    }else{
+                        token.setFunctionName(lineByLine[1].getTokenString());
+                        token.print();
+                    }
+
+                //otherwise we have a function so set it as such.
+                }else{
+                    token.setisFunction();
+                    std::cout<<"found function lineByLine[1].getTokenString(): "<<lineByLine[1].getTokenString()<<std::endl;
+                    token.setFunctionName(lineByLine[2].getTokenString());
                 }
+
                 addChild(astRoot,token);
 
 

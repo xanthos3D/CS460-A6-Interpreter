@@ -3,6 +3,35 @@
 #ifndef PROJECT1_PHASE2_TOKEN_HPP
 #define PROJECT1_PHASE2_TOKEN_HPP
 
+enum InstructionType {
+    PUSH,          // Push a literal onto the stack
+    LOAD,          // Load a variable’s value onto the stack
+    STORE,         // Store the top of the stack into a variable
+    ADD, SUB, MUL, DIV,  // Arithmetic operations
+    JUMP,          // Unconditional jump
+    JUMP_IF_FALSE, // Conditional jump if top of stack is false
+    RETURN,        // Return from a function
+    PRINT          // Print values
+};
+
+//Instruction structure
+struct Instruction {
+    InstructionType type;
+    int intOperand;               // Optional integer operand (for literals or jump targets)
+    std::string strOperand;       // Optional string operand (for variable names or format strings)
+
+    // Constructor for instructions without operands
+    // Example: Instruction(SUB)
+    Instruction(InstructionType type) : type(type), intOperand(0), strOperand("") {}
+
+    // Constructor for instructions with an integer operand
+    //Instruction(PUSH, 1)
+    Instruction(InstructionType type, int operand) : type(type), intOperand(operand), strOperand("") {}
+
+    // Constructor for instructions with a string operand
+    //Instruction(PRINT, "result")
+    Instruction(InstructionType type, const std::string &operand) : type(type), intOperand(0), strOperand(operand) {}
+};
 
 class Token {
 public:
@@ -109,13 +138,27 @@ public:
     std::string getTokenString();
     int getLineNum() { return _lineNumber; }
     int getCharPos() { return _charPos; }
+
     //useful tester function so we can print the tokens and there type.
     std::string print();
 
+    //For intepreter we have some special setters 
     void setIsMain(){ _isMain = true; }
     bool getIsMain() { return _isMain; }
+    int setAddress(int address) { return _address = address; };
+    bool isFunction(){ return _isFunction; };
+    void setisFunction() { _isFunction = true; }
+    bool isMain(){ return _isMain; }
+    void setFunctionName(std::string functionName) { _functionName = functionName; }
+    std::string getFunctionName() { return _functionName;  }
 
 private:
+
+    bool _isFunction = false;
+    bool child = false;
+    int _address;
+    std::string _functionName = "";
+
     //misc idenfitier types
     bool _identifier, _doubleQuote,_singleQuote, _semicolon,_comma, _eof, _isImportant, _isFuncName,
     //braces and brackets

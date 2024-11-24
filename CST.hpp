@@ -23,6 +23,7 @@ public:
     CSTNode* getRoot() { return root; }
     void RemoveElement();
     bool tokenOfInterest(Token check);
+    CSTNode* getNodeAtAddress(int searchAddress);
 
     //AST conversion function and infix to postfix for easier processing
     std::vector<Token> yardAlgorithm (std::vector<Token>& infix);

@@ -99,6 +99,49 @@ void CST::printTree(){
 }
 
 /** **************************************************************************************
+Prints the TREE using BFS
+@pre:breadth first traversal of our ast
+@post: returns a node that has the same address
+ *****************************************************************************************/
+CSTNode* CST::getNodeAtAddress(int searchAddress){
+    if ( root == nullptr ) {
+        std::cout<<"searched for Address: "<<searchAddress<<" but could AST Empty?"<<std::endl;
+        throw;
+        return root;
+    }
+    std::queue<CSTNode*> q;
+    q.push( root );
+
+    while ( !q.empty() ) {
+
+        CSTNode* current = q.front();
+
+        //if the address matches our search address
+        //std::cout<<current->getToken().getAddress()<<std::endl;
+        if(current->getLocation() == searchAddress){
+            //std::cout<<"found Address: "<<searchAddress<<std::endl;
+
+            //return the node we are at 
+            return current;
+        }
+        
+        q.pop();
+
+        if ( current->getLeft()!= nullptr ){
+            q.push( current->getLeft() );
+        }
+        if ( current->getRight() != nullptr ){
+            q.push( current->getRight() );
+        }
+    }
+
+    //fail case
+    std::cout<<"searched for Address: "<<searchAddress<<" but could not find it in AST"<<std::endl;
+    throw;
+    return root;
+}
+
+/** **************************************************************************************
 creates a abstract syntax tree out of our concrete syntax tree. 
 @pre:takes our CST 
 @post:converst CST to a AST

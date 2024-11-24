@@ -75,8 +75,8 @@ public:
 
     //New to intepreter,
     void assignAddress();
-    void evaluateExpression(CSTNode *root, Token token);
     void interpret();
+    void evaluateExpression(CSTNode *root, Token token);
 
     //function that dont seem to wrok and arnt nessesary if our parser is our interpreter.
     //CST* getRootOfAST(){ return cst; }

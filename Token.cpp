@@ -72,8 +72,6 @@ bool& Token::isBoolFalse(){return _boolFalse;}
 bool& Token::isImportant(){return _isImportant;}
 bool& Token::isFunctionName(){return _isFuncName;}
 
-
-
 //create setter functions
 void Token::setIdentifier(std::string input) {
     _identifier = true;

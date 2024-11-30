@@ -1408,25 +1408,25 @@ void Parser::assignAddress(){
     assignAddressHelper(cst->getRoot(), 0);
 }
 //function applies a address to every node in our ast
-
 void Parser::assignAddressHelper(CSTNode *root, int address) {
 
     //if nullptr then return
     if ( root == nullptr ) {
         return;
     }
-
-    std::cout<<" Address: "<<address<<" token: "<<root->getToken().getTokenString()<<std::endl;
-
     //if right is not null, then traverse to the right sibling
     if (root->getRight() != nullptr ){
+
+        root->setLocation(address);
+        std::cout<<"address: "<<address<<" token: "<<root->getToken().getTokenString()<<std::endl;
         assignAddressHelper(root->getRight(), address+1);
     
     //if left is not nullptr traverse left sibling
     }else if ( root->getLeft() != nullptr ){
         
         //set address of the token in the node to the current address
-        root->getToken().setAddress(address);
+        root->setLocation(address);
+        std::cout<<"address: "<<address<<" token: "<<root->getToken().getTokenString()<<std::endl;
 
         //if the token is a function wee need to look it up
         if(root->getToken().isFunction()){
@@ -1459,23 +1459,37 @@ void Parser::evaluateExpression(CSTNode *root, Token token){
 
 }
 
+//interpret the program
 void Parser::interpret() {
-    int PC = 0;
+
+    //what is this for? address position?
+    int PC = stack.top();
+
+    std::cout<<"starting at address: "<<PC<<std::endl;
+
+    //define the node of main to start interpret. address should be on stack so set node to the search of that address
+    CSTNode* mainNode = cst->getNodeAtAddress(PC);
 
     while ( !stack.empty() ){
 
-        CSTNode* mainNode = cst->getRoot();
+       
         if (mainNode != nullptr) {
 
-            CSTNode *currentNode = mainNode;
+            CSTNode *currentNode = cst->getNodeAtAddress(PC);
+
             std::string statement = currentNode->getToken().getTokenString();
 
-            if (statement == "DECLARATION") {
-
-            } else if (statement == "DECLARATION" || statement == "BEGIN BLOCK" ||
+            //if we find any of these, then we want to keep moving through them?
+            if (statement == "DECLARATION" || statement == "BEGIN BLOCK" ||
                        statement == "END BLOCK" || statement == "ELSE") {
+
                 PC++;
+                //currentNode = cst->getNodeAtAddress(PC);
+
+
+            //declaration of a variable
             } else if (statement == "ASSIGNMENT") {
+                //fill stack with 
 
             } else if (statement == "IF") {
 
@@ -1490,7 +1504,7 @@ void Parser::interpret() {
             } else if (statement == "FOR EXPRESSION 3") {
 
             }
-            std::cout << std::endl;
+            //std::cout << std::endl;
         }
     }
 

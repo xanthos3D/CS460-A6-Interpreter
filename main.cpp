@@ -27,7 +27,6 @@ C-like programming language defined in Backus-Naur Form (BNF)
 #include "Token.hpp"
 #include "Tokenizer.hpp"
 #include <vector>
-#include "interpreter.h"
 
 using namespace std;
 
@@ -109,10 +108,9 @@ int main(int argc, char *argv[]) {
 
     //loop through the ast, assigning the tokens in the ast with adresses
     CSTparser.assignAddress();
+    std::cout<<"Sucessfully Addressed AST ------------------------------------------------------"<<std::endl;
+    CSTparser.interpret();
     
-    //interpreter interpreter(AST, table);
-    //interpreter interpreter( CSTparser.getRootOfAST(), CSTparser.getRootofSymbolTableList());
-
     //interpreter.assignAddress();
     //interpreter.interpret();
 

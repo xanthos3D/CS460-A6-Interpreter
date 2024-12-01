@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
     CSTparser.assignAddress();
     std::cout<<"Sucessfully Addressed AST ------------------------------------------------------"<<std::endl;
     CSTparser.interpret();
-    
+
     //interpreter.assignAddress();
     //interpreter.interpret();
 

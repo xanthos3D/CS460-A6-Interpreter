@@ -33,8 +33,8 @@ void SymbolTableList::printTable(SymbolNode* node) {
                   << "              SCOPE: " << current->symbolTable.scope << "\n"
                   << std::endl;
         std::cout << std::endl;
-    //otherwise print out the paramlist for a function call. note, first one should print the function its apart of, then the rest should 
-    //print without the paramlist showing.
+        //otherwise print out the paramlist for a function call. note, first one should print the function its apart of, then the rest should
+        //print without the paramlist showing.
     }else{
         if (nameOfParameter != current->symbolTable.identifier_name){
             std::cout << " PARAMETER LIST FOR: " << current->symbolTable.identifier_name << std::endl;
@@ -77,16 +77,16 @@ std::string SymbolTableList::findFunctionDataTypeHelper(SymbolNode *head, std::s
 SymbolNode *SymbolTableList::lookupSymbol(const std::string &name) {
 
     //call our recursive helper
-    return lookupSymbolHelper(head->next_symbol_table_element,name);
+    return lookupSymbolHelper(head/*->next_symbol_table_element*/,name);
 }
 
 SymbolNode *SymbolTableList::lookupSymbolHelper(SymbolNode* head,const std::string &name) {
     //if the name matches the the id of the symbolnode then return that node,
-    //may need to keep track of if its a param list or not 
+    //may need to keep track of if its a param list or not
 
     //if we hit the end of our symbol table then throw error
     if (head == nullptr){
-        std::cout<<"searched for name: "<< name <<" but it is not present in the table."<<std::endl; 
+        std::cout<<"searched for name: "<< name <<" but it is not present in the table."<<std::endl;
         throw;
     }
 
@@ -95,14 +95,13 @@ SymbolNode *SymbolTableList::lookupSymbolHelper(SymbolNode* head,const std::stri
         std::cout<<""<<std::endl;
         printTable(head);
         return head;
-    
-    //if ont progress through our linked symbol table list.
+
+        //if ont progress through our linked symbol table list.
     }else{
         return lookupSymbolHelper(head->next_symbol_table_element,name);
     }
 
 }
-
 
 
 

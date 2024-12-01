@@ -3,6 +3,7 @@
 #include "CST.hpp"
 #include "CSTNode.hpp"
 #include "stack"
+#include "SymbolTable.h"
 
 
 /** **************************************************************************************
@@ -85,7 +86,7 @@ void Parser::main_procedure(){
     new_symbol_table.identifier_name = tokenVector[index].getTokenString();
     expect("main");
     std::cout<<"inserting symbol: "<<new_symbol_table.identifier_name <<std::endl;
-     symbol_table_list.insertSymbol( new_symbol_table );
+    symbol_table_list.insertSymbol( new_symbol_table );
     //clear the temp symbol table element in our parser class.
     SymbolTable empty_symbol_table;
     new_symbol_table = empty_symbol_table;
@@ -238,7 +239,7 @@ void Parser::parameter_list(){
     //then an array, can be valid syntax for a param list. so if we find a bracket
     if(tokenVector[index].isLBracket()){
         //call our function to handle an array [i]
-        
+
         identifier_and_identifier_array_list();
     }
 
@@ -359,7 +360,7 @@ void Parser::statement(){
         std::cout<<"declaration found: "<< token.getTokenString()<<std::endl;
         if(datatype_specifier()){
             token.print();
-            inDeclaration = true;  
+            inDeclaration = true;
         }
         declaration_statement();
         inDeclaration = false;
@@ -405,7 +406,7 @@ void Parser::declaration_statement(){
         //then we expect an identifier after it.
         if (tokenVector[index].isIdentifier()) {
             new_symbol_table.identifier_name = tokenVector[index].getTokenString();
-            std::cout<<"found identifier after a data specifier."<<std::endl;  
+            std::cout<<"found identifier after a data specifier."<<std::endl;
             identifier();
             //double check this
             //expect(tokenVector[index].getTokenString());
@@ -578,7 +579,7 @@ void Parser::iteration_statement() {
             statement();
         }
         //set for loop to false, so we handle semicolons normally after this.
-      //  inForLoop = false;
+        //  inForLoop = false;
     } else if (tokenVector[index].getTokenString() == "while" ){
         expect(tokenVector[index].getTokenString());
         expect("(");
@@ -652,7 +653,7 @@ void Parser::expression(){
         //call numeric expression
         numerical_expression();
         //if param is integer then set it.
-        //new_symbol_table.identifier_type = 
+        //new_symbol_table.identifier_type =
         //if we find a identifier and a left paren
     } else if (tokenVector[index].isIdentifier() && ( ( tokenVector[index + 1].isLParen()) )) {
 
@@ -665,7 +666,7 @@ void Parser::expression(){
         //std::cout<<"in expression, expecting function with paren"<<std::endl;
         //then we found a function and want to encase the next expression in parenthesis
         expect( tokenVector[index].getTokenString() );
-        
+
 
         //set the symbol table struct to take a paramlist
         //new_symbol_table.isParamList = true;
@@ -1133,7 +1134,7 @@ void Parser::identifier_and_identifier_array_list() {
         }else{
             std::cout<<"not in declaration so didnt add symbol: "<<new_symbol_table.identifier_name <<std::endl;
         }
-       
+
         expect(tokenVector[index].getTokenString());
     }
 
@@ -1191,9 +1192,9 @@ void Parser::identifier_list() {
         std::cout<<"inserting symbol: "<<new_symbol_table.identifier_name <<std::endl;
 
         if(inDeclaration == true){
-        symbol_table_list.insertSymbol(new_symbol_table);
+            symbol_table_list.insertSymbol(new_symbol_table);
         }
-       
+
         //eat that value
         expect(tokenVector[index].getTokenString());
 
@@ -1420,18 +1421,18 @@ void Parser::assignAddressHelper(CSTNode *root, int address) {
         root->setLocation(address);
         std::cout<<"address: "<<address<<" token: "<<root->getToken().getTokenString()<<std::endl;
         assignAddressHelper(root->getRight(), address+1);
-    
-    //if left is not nullptr traverse left sibling
+
+        //if left is not nullptr traverse left sibling
     }else if ( root->getLeft() != nullptr ){
-        
+
         //set address of the token in the node to the current address
         root->setLocation(address);
         std::cout<<"address: "<<address<<" token: "<<root->getToken().getTokenString()<<std::endl;
 
         //if the token is a function wee need to look it up
         if(root->getToken().isFunction()){
-             
-            //if the token is main thenwe need to look up 
+
+            //if the token is main thenwe need to look up
             if (root->getToken().isMain()){
 
                 std::cout<<"address to main: "<< root->getToken().getFunctionName() <<std::endl;
@@ -1440,14 +1441,17 @@ void Parser::assignAddressHelper(CSTNode *root, int address) {
 
                 //push the main function onto the stack to get us started when interpreting.
                 stack.push(address);
-                
+
             }else{
                 std::cout<<"address to function: "<< root->getToken().getFunctionName() <<std::endl;
                 symbol_table_list.setAddress( symbol_table_list.lookupSymbol( root->getToken().getFunctionName() ), address);
             }
-            
+
         }
         address++;
+
+        //So we know how many addresses/elements we have
+        highestAddress = address - 1;
 
         assignAddressHelper(root->getLeft(), address);
     }
@@ -1459,57 +1463,226 @@ void Parser::evaluateExpression(CSTNode *root, Token token){
 
 }
 
-//interpret the program
+////interpret the program
+//void Parser::interpret() {
+//
+//    //what is this for? address position?
+//    int PC = stack.top();
+//
+//    std::cout<<"starting at address: "<<PC<<std::endl;
+//
+//    //define the node of main to start interpret. address should be on stack so set node to the search of that address
+//    CSTNode* current = cst->getNodeAtAddress(PC);
+//
+//    while ( !stack.empty() ){
+//
+//
+//        if (current != nullptr) {
+//
+//            CSTNode *currentNode = cst->getNodeAtAddress(PC);
+//
+//            std::string statement = currentNode->getToken().getTokenString();
+//
+//            //if we find any of these, then we want to keep moving through them?
+//            if (statement == "DECLARATION" || statement == "BEGIN BLOCK" ||
+//                statement == "END BLOCK" || statement == "ELSE") {
+//
+//                PC++;
+//                //currentNode = cst->getNodeAtAddress(PC);
+//
+//
+//                //declaration of a variable
+//            } else if (statement == "ASSIGNMENT") {
+//                //fill stack with
+//
+//            } else if (statement == "IF") {
+//
+//            } else if (statement == "RETURN") {
+//
+//            } else if (statement == "PRINTF") {
+//
+//            } else if (statement == "FOR EXPRESSION 1") {
+//
+//            } else if (statement == "FOR EXPRESSION 2") {
+//
+//            } else if (statement == "FOR EXPRESSION 3") {
+//
+//            }
+//            //std::cout << std::endl;
+//        }
+//    }
+//
+//}
+
+
+
 void Parser::interpret() {
+    CSTNode* root = cst->getRoot();
+    programCounter = stack.top();
+    std::cout << "Highest Address is: " << highestAddress << std::endl;
+    while (programCounter <= highestAddress) {
+        //Get the current instruction
+        //Instruction currentInstruction = root->getInstructionAt(programCounter);
 
-    //what is this for? address position?
-    int PC = stack.top();
+        //Execute the instruction
+        //executeInstruction(currentInstruction);
 
-    std::cout<<"starting at address: "<<PC<<std::endl;
-
-    //define the node of main to start interpret. address should be on stack so set node to the search of that address
-    CSTNode* mainNode = cst->getNodeAtAddress(PC);
-
-    while ( !stack.empty() ){
-
-       
-        if (mainNode != nullptr) {
-
-            CSTNode *currentNode = cst->getNodeAtAddress(PC);
-
-            std::string statement = currentNode->getToken().getTokenString();
-
-            //if we find any of these, then we want to keep moving through them?
-            if (statement == "DECLARATION" || statement == "BEGIN BLOCK" ||
-                       statement == "END BLOCK" || statement == "ELSE") {
-
-                PC++;
-                //currentNode = cst->getNodeAtAddress(PC);
-
-
-            //declaration of a variable
-            } else if (statement == "ASSIGNMENT") {
-                //fill stack with 
-
-            } else if (statement == "IF") {
-
-            } else if (statement == "RETURN") {
-
-            } else if (statement == "PRINTF") {
-
-            } else if (statement == "FOR EXPRESSION 1") {
-
-            } else if (statement == "FOR EXPRESSION 2") {
-
-            } else if (statement == "FOR EXPRESSION 3") {
-
-            }
-            //std::cout << std::endl;
+        if (cst->getNodeAtAddress(programCounter)->getToken().getTokenString() == "ASSIGNMENT"){
+            programCounter++;
+            SymbolNode* variable = symbol_table_list.lookupSymbol(cst->getNodeAtAddress(programCounter)->getToken().getTokenString());
+            programCounter++;
+            performArithmetic(cst->getNodeAtAddress(programCounter));
+            symbol_table_list.setVarVal(variable, stack.top());
+            stack.pop();
         }
+
+        //Increment the program counter to move to the next instruction
+        programCounter++;
+    }
+}
+//
+//void Parser::executeInstruction(const Instruction& instruction) {
+//    switch (instruction.type) {
+//        case PUSH:
+//            pushValue(instruction.intOperand);
+//            break;
+//        case LOAD:
+//            loadVariable(instruction.strOperand);
+//            break;
+//        case STORE:
+//            storeVariable(instruction.strOperand);
+//            break;
+//        case ADD:
+//        case SUB:
+//        case MUL:
+//        case DIV:
+//            performArithmetic();
+//            break;
+//        case PRINT:
+//            printValue();
+//            break;
+//        case JUMP:
+//            jumpTo(instruction.intOperand);
+//            break;
+//        case JUMP_IF_FALSE:
+//            conditionalJumpTo(instruction.intOperand);
+//            break;
+//        case RETURN:
+//            //Handle return statement
+//            break;
+//        default:
+//            std::cerr << "Unknown instruction!" << std::endl;
+//            exit(1);
+//    }
+//}
+//
+//
+//void Parser::pushValue(int value) {
+//    stack.push(value);
+//}
+//
+//
+//int Parser::popValue() {
+//    if (stack.empty()) {
+//        std::cerr << "Error: Attempted to pop from an empty stack!" << std::endl;
+//        exit(1);
+//    }
+//    int value = stack.top();
+//    stack.pop();
+//    return value;
+//}
+//
+//void Parser::loadVariable(const std::string& varName) {
+//    SymbolNode* varNode = symbol_table_list.lookupSymbol(varName);
+//    if (!varNode) {
+//        std::cerr << "Error: Variable not found in symbol table!" << std::endl;
+//        exit(1);
+//    }
+//    pushValue(varNode->symbolTable._address);  // Push the variable value (address or content)
+//}
+//
+//void Parser::storeVariable(const std::string& varName) {
+//    SymbolNode* varNode = symbol_table_list.lookupSymbol(varName);
+//    if (!varNode) {
+//        std::cerr << "Error: Variable not found in symbol table!" << std::endl;
+//        exit(1);
+//    }
+//    varNode->symbolTable._address = popValue();  // Set the variable value to the stack's top value
+//}
+//
+//
+void Parser::performArithmetic(CSTNode* root) {
+    if (root == nullptr) {
+        //return;
+        exit(1);
     }
 
+    std::stack<int> arithmeticStack;
+
+    evalNode(root, arithmeticStack);
+
+    stack.push(arithmeticStack.top());
+}
+
+void Parser::evalNode(CSTNode* node, std::stack<int>& evalStack){
+    if (node == nullptr) return;
+
+    //forgot the
+    //If it's an operand, push its value to the stack
+    if (node->getToken().isIdentifier() || node->getToken().isInt() || node->getToken().isDouble()) {
+        if (node->getToken().isInt() || node->getToken().isDouble()) {
+            int value = std::stoi(node->getToken().getTokenString());
+            evalStack.push(value);
+        }else{
+
+        }
+    }
+        //If it's an operator, evaluate the expression
+    else if (node->getToken().isMinus() || node->getToken().isPlus() ||
+             node->getToken().isModulo() || node->getToken().isAsterisk() ||
+             node->getToken().isDivide()) {
+
+        // Perform the operation based on the operator
+        int operand2 = evalStack.top();
+        evalStack.pop();
+        int operand1 = evalStack.top();
+        evalStack.pop();
+
+        if (node->getToken().isPlus()) {
+            evalStack.push(operand1 + operand2);
+        }
+        else if (node->getToken().isMinus()) {
+            evalStack.push(operand1 - operand2);
+        }
+        else if (node->getToken().isAsterisk()) {
+            evalStack.push(operand1 * operand2);
+        }
+        else if (node->getToken().isDivide()) {
+            if (operand2 == 0) throw std::runtime_error("Division by zero error!");
+            evalStack.push(operand1 / operand2);
+        }
+    } else if (node->getToken().isAssignmentOperator()){
+        //Need to finish
+    }
 }
 
 
-
-
+//void Parser::printValue() {
+//    int value = popValue();
+//    std::cout << value << std::endl;
+//}
+//
+//
+//void Parser::jumpTo(int address) {
+//    programCounter = address;  // Set the program counter to the jump address
+//}
+//
+//
+//void Parser::conditionalJumpTo(int address) {
+//    int condition = popValue();
+//    if (condition == 0) {  // If the condition is false (0), jump
+//        jumpTo(address);
+//    }
+//}
+//
+//

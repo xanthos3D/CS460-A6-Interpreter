@@ -1,3 +1,4 @@
+
 /** ***************************************************************************
  * @remark CS 460: Definition of Parser class
  *
@@ -78,12 +79,24 @@ public:
     void interpret();
     void evaluateExpression(CSTNode *root, Token token);
 
+    void executeInstruction(const Instruction& instruction);
+    void pushValue(int value);
+    int popValue();
+    void loadVariable(const std::string& varName);
+    void storeVariable(const std::string& varName);
+    void performArithmetic(CSTNode* root);
+    void evalNode(CSTNode* node, std::stack<int>& evalStack);
+    void printValue();
+    void jumpTo(int address);
+    void conditionalJumpTo(int address);
+
     //function that dont seem to wrok and arnt nessesary if our parser is our interpreter.
     //CST* getRootOfAST(){ return cst; }
-    //SymbolTableList getRootofSymbolTableList() { return symbol_table_list; }   
+    //SymbolTableList getRootofSymbolTableList() { return symbol_table_list; }
 private:
 
     //position in our vector which is passed in, and current scope
+    int highestAddress;
     int index = 0;
     int  scope = 0;
     bool newStatement = false;
@@ -118,6 +131,8 @@ private:
     //interpreter variables and private functions.
     std::stack<int> stack;
     void assignAddressHelper(CSTNode *root, int address);
+
+    int programCounter;
 
 };
 

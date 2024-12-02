@@ -84,22 +84,14 @@ public:
     //adds a feunction name and memory location
     void addFunction(std::string functionName, int addressLoc);
 
+    //function to evaluate a post fix expression of token in a vector
+    void postFixEval(std::vector<Token> postfix);
+
     //interprets the code
     void interpret();
     
 
     void evaluateExpression(CSTNode *root, Token token);
-
-    void executeInstruction(const Instruction& instruction);
-    void pushValue(int value);
-    int popValue();
-    void loadVariable(const std::string& varName);
-    void storeVariable(const std::string& varName);
-    void performArithmetic(CSTNode* root);
-    void evalNode(CSTNode* node, std::stack<int>& evalStack);
-    void printValue();
-    void jumpTo(int address);
-    void conditionalJumpTo(int address);
 
     //function that dont seem to wrok and arnt nessesary if our parser is our interpreter.
     //CST* getRootOfAST(){ return cst; }

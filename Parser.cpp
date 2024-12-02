@@ -1494,8 +1494,53 @@ void Parser::addFunction(std::string functionName, int addressLoc){
 
 }
 
+void Parser::postFixEval(std::vector<Token> postfix){
+    
+    //stack to store operations
+    std::stack<int> evalStack;
 
-void Parser::evaluateExpression(CSTNode *root, Token token){
+    //loop through vector of tokens
+     for (int i = 0; i < postfix.size(); i++) {
+
+        //If it's an operand, push its value to the stack
+        if(postfix[i].isIdentifier() || postfix[i].isInt() || postfix[i].isDouble()) {
+            if (postfix[i].isInt() || postfix[i].isDouble()) {
+                int value = std::stoi(postfix[i].getTokenString());
+                evalStack.push(value);
+            }else{
+
+            }
+        }
+            //If it's an operator, evaluate the expression
+        else if (postfix[i].isMinus() || postfix[i].isPlus() ||
+                postfix[i].isModulo() || postfix[i].isAsterisk() ||
+                postfix[i].isDivide()) {
+
+            // Perform the operation based on the operator
+            int operand2 = evalStack.top();
+            evalStack.pop();
+            int operand1 = evalStack.top();
+            evalStack.pop();
+
+            if (postfix[i].isPlus()) {
+                evalStack.push(operand1 + operand2);
+            }
+            else if (postfix[i].isMinus()) {
+                evalStack.push(operand1 - operand2);
+            }
+            else if (postfix[i].isAsterisk()) {
+                evalStack.push(operand1 * operand2);
+            }
+            else if (postfix[i].isDivide()) {
+                if (operand2 == 0) throw std::runtime_error("Division by zero error!");
+                evalStack.push(operand1 / operand2);
+            }
+        } else if (postfix[i].isAssignmentOperator()){
+            //Need to finish
+            //symbol_table_list.lookupSymbol( root->getToken().getFunctionName()
+        }
+     
+     }
 
     
 
@@ -1564,6 +1609,9 @@ void Parser::interpret() {
                 //grab the node at the next position to operate on.
                 currentNode = cst->getNodeAtAddress(callStack.back());
 
+                //vector to store the postfix tokens
+                std::vector<Token> postFix;
+
                 //loop on the cst node until it no longer has any left siblings. this loop get is all the componnents of the assignment operation.
                 while(currentNode->getRight() != nullptr){
                     
@@ -1607,34 +1655,44 @@ void Parser::interpret() {
                         interpret();
                         //after the function call we are able to resume at the same place in memory regardless of where the funtion is called.
                         //in a assignment.
+
+                        //store the result of the function call in a token
+
+                        //add that token to the vector
+
+
                         
+                    }else{
+
+                        //if not a function call push token to vector.
+                        postFix.push_back(currentNode->getToken());
                     }
+
+
                     
                     //increment the programming counter.
                     callStack.back()++;
 
                     //move to next left sibling
                     currentNode = cst->getNodeAtAddress(callStack.back());
-
                 }
 
                 //print out components of the of the assignment operation.
                 statement = currentNode->getToken().getTokenString();
                 std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
-                    
-
-                //increment the call stack
-                callStack.back()++;
 
                 //UNFINISHED HERE! 
                 //the components above should make up some list which an arithmatic operation can be performed on
                 //likely you will need to use the symbol table to keep track of the values above, atlest in the case of the function call.
                 //then put them in some container that can operate on the components to set the result in the correct variable in our symbol table
 
-                //operate on the stack to get a result.
+                //call postfixeval to do operations and set value to the variable in the symbol table
+                postFixEval(postFix);
 
-                //set result to the value in the symbol table.
+                //increment the call stack
+                callStack.back()++;
 
+                
             //handles the logi of a iff statement.
             }else if (statement == "IF") {
                 
@@ -1670,7 +1728,7 @@ void Parser::interpret() {
                 //know to evaluate the ontents of that if expression.
 
                 //operate on the stack to get a result. VALUE IS set to basic value for testing.
-                bool boolExpression = false; 
+                bool boolExpression = true; 
 
                 // now that we have all part of the boolean expression shift forward to the parenthesis
                 callStack.back()++;
@@ -1780,77 +1838,8 @@ void Parser::interpret() {
 }
 
 
-//
-//void Parser::executeInstruction(const Instruction& instruction) {
-//    switch (instruction.type) {
-//        case PUSH:
-//            pushValue(instruction.intOperand);
-//            break;
-//        case LOAD:
-//            loadVariable(instruction.strOperand);
-//            break;
-//        case STORE:
-//            storeVariable(instruction.strOperand);
-//            break;
-//        case ADD:
-//        case SUB:
-//        case MUL:
-//        case DIV:
-//            performArithmetic();
-//            break;
-//        case PRINT:
-//            printValue();
-//            break;
-//        case JUMP:
-//            jumpTo(instruction.intOperand);
-//            break;
-//        case JUMP_IF_FALSE:
-//            conditionalJumpTo(instruction.intOperand);
-//            break;
-//        case RETURN:
-//            //Handle return statement
-//            break;
-//        default:
-//            std::cerr << "Unknown instruction!" << std::endl;
-//            exit(1);
-//    }
-//}
-//
-//
-//void Parser::pushValue(int value) {
-//    stack.push(value);
-//}
-//
-//
-//int Parser::popValue() {
-//    if (stack.empty()) {
-//        std::cerr << "Error: Attempted to pop from an empty stack!" << std::endl;
-//        exit(1);
-//    }
-//    int value = stack.top();
-//    stack.pop();
-//    return value;
-//}
-//
-//void Parser::loadVariable(const std::string& varName) {
-//    SymbolNode* varNode = symbol_table_list.lookupSymbol(varName);
-//    if (!varNode) {
-//        std::cerr << "Error: Variable not found in symbol table!" << std::endl;
-//        exit(1);
-//    }
-//    pushValue(varNode->symbolTable._address);  // Push the variable value (address or content)
-//}
-//
-//void Parser::storeVariable(const std::string& varName) {
-//    SymbolNode* varNode = symbol_table_list.lookupSymbol(varName);
-//    if (!varNode) {
-//        std::cerr << "Error: Variable not found in symbol table!" << std::endl;
-//        exit(1);
-//    }
-//    varNode->symbolTable._address = popValue();  // Set the variable value to the stack's top value
-//}
-//
-//
+
+
 /*void Parser::performArithmetic(CSTNode* root) {
     if (root == nullptr) {
         //return;
@@ -1906,23 +1895,3 @@ void Parser::evalNode(CSTNode* node, std::stack<int>& evalStack){
     }
 }*/
 
-
-//void Parser::printValue() {
-//    int value = popValue();
-//    std::cout << value << std::endl;
-//}
-//
-//
-//void Parser::jumpTo(int address) {
-//    callStack.back() = address;  // Set the program counter to the jump address
-//}
-//
-//
-//void Parser::conditionalJumpTo(int address) {
-//    int condition = popValue();
-//    if (condition == 0) {  // If the condition is false (0), jump
-//        jumpTo(address);
-//    }
-//}
-//
-//

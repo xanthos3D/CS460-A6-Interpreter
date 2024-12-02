@@ -112,7 +112,7 @@ public:
     //useful tester function so we can print the tokens and there type.
     std::string print();
 
-    //For intepreter we have some special setters 
+    //For intepreter we have some special setters
     void setIsMain(){ _isMain = true; }
     bool getIsMain() { return _isMain; }
     bool isFunction(){ return _isFunction; };
@@ -122,7 +122,7 @@ public:
     std::string getFunctionName() { return _functionName;  }
 
 private:
-    
+
     bool _isFunction = false;
     bool child = false;
     int _address = 0;

@@ -7,7 +7,7 @@ Anthony Manese
 
 how to compile program through terminal
 1. g++ main.cpp Token.cpp Tokenizer.cpp Parser.cpp CST.cpp SymbolTable.cpp
-2. ./a.out programming_assignment_6-test_file_1.c
+2. ./INTERP programming_assignment_6-test_file_1.c
 
 how to run makefile
 1.  make

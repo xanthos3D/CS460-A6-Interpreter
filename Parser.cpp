@@ -4,6 +4,7 @@
 #include "CSTNode.hpp"
 #include "stack"
 #include "SymbolTable.h"
+#include <tuple>
 
 
 /** **************************************************************************************
@@ -1440,9 +1441,12 @@ void Parser::assignAddressHelper(CSTNode *root, int address) {
                 //check to see if address is set properly.
 
                 //push the main function onto the stack to get us started when interpreting.
-                stack.push(address);
+                callStack.push_back(address);
 
             }else{
+                // add the function to our function table
+                addFunction(root->getToken().getFunctionName(),address);
+
                 std::cout<<"address to function: "<< root->getToken().getFunctionName() <<std::endl;
                 symbol_table_list.setAddress( symbol_table_list.lookupSymbol( root->getToken().getFunctionName() ), address);
             }
@@ -1458,88 +1462,324 @@ void Parser::assignAddressHelper(CSTNode *root, int address) {
 
 }
 
+//look up function that checks our list of stored functions and there memory addresses.
+int Parser::lookUpFunction(std::string functionName){
+    
+    //search our addres vector
+    for (int i = 0; i < functionAddresses.size(); i++) {
+        //std::cout<< std::get<0>(functionAddresses[i]) <<std::endl;
+
+        //if the function name matches the identifier
+        if(std::get<0>(functionAddresses[i]) == functionName){
+            
+            std::cout<< "found function in address book: "<<std::get<0>(functionAddresses[i])<<std::endl;
+
+            //return the memory location of that function.
+            return std::get<1>(functionAddresses[i]);
+
+        }
+    }
+
+    //fail case, if it could not be found return -1
+    return -1;
+
+}
+
+//adds a function name and memory location
+void Parser::addFunction(std::string functionName, int addressLoc){
+
+    std::cout<< "adding: "<<functionName<<" to table with memory address of: "<<addressLoc<<std::endl;
+    //make a tuple with the new address and mem location
+    functionAddresses.push_back(std::make_tuple(functionName, addressLoc));
+
+}
+
 
 void Parser::evaluateExpression(CSTNode *root, Token token){
 
+    
+
 }
-
-////interpret the program
-//void Parser::interpret() {
-//
-//    //what is this for? address position?
-//    int PC = stack.top();
-//
-//    std::cout<<"starting at address: "<<PC<<std::endl;
-//
-//    //define the node of main to start interpret. address should be on stack so set node to the search of that address
-//    CSTNode* current = cst->getNodeAtAddress(PC);
-//
-//    while ( !stack.empty() ){
-//
-//
-//        if (current != nullptr) {
-//
-//            CSTNode *currentNode = cst->getNodeAtAddress(PC);
-//
-//            std::string statement = currentNode->getToken().getTokenString();
-//
-//            //if we find any of these, then we want to keep moving through them?
-//            if (statement == "DECLARATION" || statement == "BEGIN BLOCK" ||
-//                statement == "END BLOCK" || statement == "ELSE") {
-//
-//                PC++;
-//                //currentNode = cst->getNodeAtAddress(PC);
-//
-//
-//                //declaration of a variable
-//            } else if (statement == "ASSIGNMENT") {
-//                //fill stack with
-//
-//            } else if (statement == "IF") {
-//
-//            } else if (statement == "RETURN") {
-//
-//            } else if (statement == "PRINTF") {
-//
-//            } else if (statement == "FOR EXPRESSION 1") {
-//
-//            } else if (statement == "FOR EXPRESSION 2") {
-//
-//            } else if (statement == "FOR EXPRESSION 3") {
-//
-//            }
-//            //std::cout << std::endl;
-//        }
-//    }
-//
-//}
-
-
 
 void Parser::interpret() {
+
+    //gets the root of the cst
     CSTNode* root = cst->getRoot();
-    programCounter = stack.top();
-    std::cout << "Highest Address is: " << highestAddress << std::endl;
-    while (programCounter <= highestAddress) {
-        //Get the current instruction
-        //Instruction currentInstruction = root->getInstructionAt(programCounter);
 
-        //Execute the instruction
-        //executeInstruction(currentInstruction);
+    //important variable to keep track of scope.
+    int blockScope = 0;
 
-        if (cst->getNodeAtAddress(programCounter)->getToken().getTokenString() == "ASSIGNMENT"){
-            programCounter++;
-            SymbolNode* variable = symbol_table_list.lookupSymbol(cst->getNodeAtAddress(programCounter)->getToken().getTokenString());
-            programCounter++;
-            performArithmetic(cst->getNodeAtAddress(programCounter));
-            symbol_table_list.setVarVal(variable, stack.top());
-            stack.pop();
+    //define the node of main to start interpret. address should be on stack so set node to the search of that address
+    CSTNode* mainNode = cst->getNodeAtAddress(callStack.back());
+
+    //important for figuring out when to stop interpreting. useful to keep track of function call interps as well.
+    int callStackScope = callStack.size();
+
+    //tester to see where we currently are interpreting.
+    if(callStack.size()< 2){
+        std::cout << "main Address is: " << callStack.back() << std::endl;
+    }else{
+        std::cout << "function Address is: " << callStack.back() << std::endl;
+    }
+    
+    //we want to loop until we hit a return, or fall out of scope. that will happen when we pop off the current callstack.back()
+    while (callStackScope == callStack.size()){
+
+        //saftey net incase we hit a nullptr?
+        if (mainNode != nullptr) {
+
+            //the current node we are checking
+            CSTNode *currentNode = cst->getNodeAtAddress(callStack.back());
+
+            //for testing purposes to see what token we are looking at.
+            std::string statement = currentNode->getToken().getTokenString();
+
+            //if we find a begin block want to increase our blockScope by one
+            if (statement == "BEGIN BLOCK") {
+
+                blockScope++;
+                std::cout << "BEGIN BLOCK ADDRESS: " << callStack.back() <<" statement: "<<statement<<" blockScope: " << blockScope << std::endl;
+                callStack.back()++;
+
+            //like wise if we find a end block then we de increment the blockScope
+            }else if (statement == "END BLOCK") {
+
+                blockScope--;
+                std::cout << "END BLOCK ADDRESS: " << callStack.back() <<" statement: "<<statement<<" blockScope: " << blockScope << std::endl;
+                callStack.back()++;
+
+            //for a declaration, just keep moving?
+            }else if (statement == "DECLARATION") {
+
+                std::cout << "DECLARATION ADDRESS: " << callStack.back() << std::endl;
+                callStack.back()++;
+
+            //assignment of a variable.
+            }else if (statement == "ASSIGNMENT") {
+                
+                //print out token with label assignment
+                std::cout << "ASSIGNMENT ADDRESS: " << callStack.back() << std::endl;
+                callStack.back()++;
+                
+                //grab the node at the next position to operate on.
+                currentNode = cst->getNodeAtAddress(callStack.back());
+
+                //loop on the cst node until it no longer has any left siblings. this loop get is all the componnents of the assignment operation.
+                while(currentNode->getRight() != nullptr){
+                    
+                    //print out components of the of the assignment operation
+                    statement = currentNode->getToken().getTokenString();
+                    std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+                    
+                    //if we find a function call in a assignment, then we need to perform some recursion
+                    //call our look up function to find out if the given token is a function in our function list
+                    int foundFunction = lookUpFunction(currentNode->getToken().getTokenString());
+
+                    //if the value does not return -1 then we have found a function call.
+                    if(foundFunction != -1){
+
+                        //move past the token that resembles the function call
+                        callStack.back()++;
+                        //then move past the token that resembles the open paren
+                        callStack.back()++;
+
+                        //grab next node that is the first function call parameter.
+                        currentNode = cst->getNodeAtAddress(callStack.back());
+
+                        //then loop through the params, so long as we dont get a close paren
+                        while(currentNode->getToken().getTokenString() != ")"){
+
+                            //print out the function call parameters
+                            std::cout<<"found param for function call: "<<currentNode->getToken().getTokenString()<<std::endl; 
+
+                            //move to the next element in memory
+                            callStack.back()++;
+                            currentNode = cst->getNodeAtAddress(callStack.back());
+
+                            //set the paramlist to the variable. if a variable is a param then lookup that variable
+                            //and set it to the param at this position.
+                        }
+
+                        //so we want to push the function memory address to the top of the callstack. 
+                        callStack.push_back(foundFunction);
+
+                        //then we can recursively call interpret to interpret the function call.
+                        interpret();
+                        //after the function call we are able to resume at the same place in memory regardless of where the funtion is called.
+                        //in a assignment.
+                        
+                    }
+                    
+                    //increment the programming counter.
+                    callStack.back()++;
+
+                    //move to next left sibling
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+
+                }
+
+                //print out components of the of the assignment operation.
+                statement = currentNode->getToken().getTokenString();
+                std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+                    
+
+                //increment the call stack
+                callStack.back()++;
+
+                //UNFINISHED HERE! 
+                //the components above should make up some list which an arithmatic operation can be performed on
+                //likely you will need to use the symbol table to keep track of the values above, atlest in the case of the function call.
+                //then put them in some container that can operate on the components to set the result in the correct variable in our symbol table
+
+                //operate on the stack to get a result.
+
+                //set result to the value in the symbol table.
+
+            //handles the logi of a iff statement.
+            }else if (statement == "IF") {
+                
+                statement = currentNode->getToken().getTokenString();
+                std::cout << "IF ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+
+                //move past the if identifier.
+                callStack.back()++;
+                
+                //grab the node at the next position to operate on.
+                currentNode = cst->getNodeAtAddress(callStack.back());
+
+                //loop on the cst node until it no longer has any left siblings
+                while(currentNode->getRight() != nullptr){
+
+                    statement = currentNode->getToken().getTokenString();
+                    std::cout << "IF PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+
+                    //increment the programming counter.
+                    callStack.back()++;
+
+                    //move to next left sibling
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+
+                }
+                //once we find the node with a null right sibling, we also want to ad that as well to our if parts
+                statement = currentNode->getToken().getTokenString();
+                std::cout << "IF PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+
+                //UNFINISHED HERE!
+                //similiar to the opperation for assignment but for boolean opperation. need to evaluate the bool expression then set
+                //the value if true or false to the variable below. that way we can either skip the if statements scope, or
+                //know to evaluate the ontents of that if expression.
+
+                //operate on the stack to get a result. VALUE IS set to basic value for testing.
+                bool boolExpression = false; 
+
+                // now that we have all part of the boolean expression shift forward to the parenthesis
+                callStack.back()++;
+                currentNode = cst->getNodeAtAddress(callStack.back());
+                statement = currentNode->getToken().getTokenString();
+
+                //if result is true then  operate on this blocking scope like normal
+                if(boolExpression == true){
+
+                    std::cout << "bool expression true"<< std::endl;
+
+                //else if its false, then skip that block, using the block scoping to skip it
+                }else{
+
+                    std::cout << "bool expression false"<< std::endl;
+
+                    //important! the token we would be on if we didnt increment by one is a begin block
+                    //this is bad because it messes up the skip function if bool is false.
+                    //before we loop increment by one to simulate eating the begin block
+                    callStack.back()++;
+
+                    //set the temp scope variable to tell when we should stop ignoring code in the scope of the if statement.
+                    int targetScope = blockScope;
+                    
+                    //increase the scope by 1 to resemble eating the open paren.
+                    blockScope++;
+
+                    //std::cout << "blockScope: "<<blockScope<<" targetScope: "<<targetScope<< std::endl;
+
+                    //while the blockScope is greater than the targetScope
+                    while(blockScope > targetScope){
+
+                        // upodate node contents
+                        currentNode = cst->getNodeAtAddress(callStack.back());
+                        statement = currentNode->getToken().getTokenString();
+
+                        //mock begin case. functions like the begin block case but specially tailored for skipping things in this scope
+                        if (statement == "BEGIN BLOCK") {
+
+                            blockScope++;
+                            std::cout << "BEGIN BLOCK in if skip ADDRESS: " << callStack.back() <<"blockScope: " << blockScope << std::endl;
+
+                        //mock end case. functions like the begin block case but specially tailored for skipping things in this scope
+                        }else if (statement == "END BLOCK") {
+                            
+                            blockScope--;
+                            std::cout << "END BLOCK in if skip ADDRESS: " << callStack.back() <<" blockScope: " << blockScope << std::endl;
+                        }
+                        
+                        //move past the end block
+                        callStack.back()++;
+                    }
+                }
+
+                //move the token forward.
+                currentNode = cst->getNodeAtAddress(callStack.back());
+                statement = currentNode->getToken().getTokenString();
+                std::cout <<"statement: "<<statement<<std::endl;
+                std::cout<<"current token: "<<currentNode->getToken().getTokenString()<<" blockScope: "<<blockScope<<std::endl;
+
+            //handle else case
+            }else if (statement == "ELSE") {
+                // UNFINISHED HERE!
+                //suggestion, the above if case handles when to skip the scope of a if statement. we could add some way of tracking if
+                //we are checking if cases with this case reseting that variable? may need to reset that value if other cases are ether incase if is by its self.
+                //also in this case, we need to check if there is a if after this else. if thats the case, then just skip this case and have the 
+                //if land into our if case above
+
+            //handle return case.
+            }else if (statement == "RETURN") {
+                // UNFINISHED HERE!
+                //we need to update the symbol table values when we return. and ensure they go to the correct places
+
+                //then pop the current mem of the call stack stopping the loop of this function since we are finished in this call
+                callStack.pop_back();
+                std::cout<<"REACHED RETURN CALL."<<std::endl;
+            
+            //handles printing of output once we are finished.
+            }else if (statement == "PRINTF") {
+
+                // UNFINISHED HERE!
+                //need to determine if we are printing a string by its self or variables? 
+                //may need to parse through token string to put variable in the correct places. 
+
+                //std::cout<<"attempting print."<<std::endl;
+
+            }else if (statement == "FOR EXPRESSION 1") {
+                // UNFINISHED HERE!
+                //should just store a value into our symbol table 
+
+            }else if (statement == "FOR EXPRESSION 2") {
+                // UNFINISHED HERE!
+                //challenging part. my thoughts, we could implement something similiar to the way the callstack works
+                //where we have a vector to keep track of the initial address of the foor loop here at this boolean case.
+                //then keep track of the scope of the for loop similiar to the way i handled the if case, where if expression is true
+                //evaluate until we run out of the for loops scope, then jump back to the for loops address.
+                //and on false we simply skip the for loops scope.
+
+            }else if (statement == "FOR EXPRESSION 3") {
+                // UNFINISHED HERE!
+                //increment the correct variable in the symbol table.
+
+            }
+            //std::cout << std::endl;
         }
-
-        //Increment the program counter to move to the next instruction
-        programCounter++;
     }
 }
+
+
 //
 //void Parser::executeInstruction(const Instruction& instruction) {
 //    switch (instruction.type) {
@@ -1611,7 +1851,7 @@ void Parser::interpret() {
 //}
 //
 //
-void Parser::performArithmetic(CSTNode* root) {
+/*void Parser::performArithmetic(CSTNode* root) {
     if (root == nullptr) {
         //return;
         exit(1);
@@ -1664,7 +1904,7 @@ void Parser::evalNode(CSTNode* node, std::stack<int>& evalStack){
     } else if (node->getToken().isAssignmentOperator()){
         //Need to finish
     }
-}
+}*/
 
 
 //void Parser::printValue() {
@@ -1674,7 +1914,7 @@ void Parser::evalNode(CSTNode* node, std::stack<int>& evalStack){
 //
 //
 //void Parser::jumpTo(int address) {
-//    programCounter = address;  // Set the program counter to the jump address
+//    callStack.back() = address;  // Set the program counter to the jump address
 //}
 //
 //

@@ -75,8 +75,19 @@ public:
     CST* convertToAST();
 
     //New to intepreter,
+    //assigns a address in each cstnode
     void assignAddress();
+
+    //look up function that checks our list of stored functions and there memory addresses.
+    int lookUpFunction(std::string functionName);
+
+    //adds a feunction name and memory location
+    void addFunction(std::string functionName, int addressLoc);
+
+    //interprets the code
     void interpret();
+    
+
     void evaluateExpression(CSTNode *root, Token token);
 
     void executeInstruction(const Instruction& instruction);
@@ -129,10 +140,24 @@ private:
     std::string tempFunctionName = "";
 
     //interpreter variables and private functions.
-    std::stack<int> stack;
     void assignAddressHelper(CSTNode *root, int address);
 
-    int programCounter;
+    //keeps track of the current address of the interpreter
+    //int programCounter;
+    //std::stack<int> stack;
+
+    //vector which holds tuples. the string represents the function name, and the int represents its memory location.
+    std::vector<std::tuple<std::string,int>> functionAddresses;
+
+    //instead of using a stack we want to use a stack vector. notes
+    //this vector contains memory addresses. when we start the first memory location is main
+    //when we traverse we want to update the variable inside this vector at that starting position as we move down with
+    //each call
+    //if we run into a function call, then we need to push_back the memory address of that function to this vector
+    //then recursively call interp afteward to interp that functino call.
+    //once that functioneither returns , or if its a procedure, falls out of scope, then we need to pop the value on the end.
+    std::vector<int> callStack;
+    
 
 };
 

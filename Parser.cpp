@@ -1594,8 +1594,6 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
 
     }
 
-
-
 }
 
 void Parser::interpret() {
@@ -1902,12 +1900,59 @@ void Parser::interpret() {
 
                 //handles printing of output once we are finished.
             }else if (statement == "PRINTF") {
+                callStack.back()++;
+                currentNode = cst->getNodeAtAddress(callStack.back());
+                statement = currentNode->getToken().getTokenString();
+                std::vector<Token> variables;
+                std::cout << "adding tokens to variable vector" << std::endl;
 
-                // UNFINISHED HERE!
-                //need to determine if we are printing a string by its self or variables? 
-                //may need to parse through token string to put variable in the correct places. 
+                while(currentNode->getRight() != nullptr){
+                    callStack.back()++;
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+                    std::cout << "added " << currentNode->getToken().getTokenString()<< " to vector" << std::endl;
+                    variables.push_back(currentNode->getToken());
+                }
+                std::string test = statement;
+                //need to determine if we are printing a string by its self or variables?
+                //may need to parse through token string to put variable in the correct places.
+                //attempting to replace %d and %s with tokens
+                std::cout<<"attempting print " <<std::endl;
+                std::cout << statement << std::endl;
+                int vecInt = 0;
+                size_t index = 0;
+                while(true){
+                    // Locate the substring to replace.
+                    index = test.find("%d", index);
+                    if (index == std::string::npos){
+                        break;
+                    }
 
-                //std::cout<<"attempting print."<<std::endl;
+                    SymbolNode* variableToDigit = symbol_table_list.lookupSymbolParam(variables[vecInt].getTokenString());
+                    int varToInt = variableToDigit->variableVal;
+                    // Make the replacement.
+                    test.replace(index, 2, std::to_string(varToInt));
+
+                    // Advance index forward so the next iteration doesn't pick it up as well.
+                    index++;
+                    vecInt++;
+                }
+
+                //trying to replace \n in printf statement
+                /*while(true){
+                    // Locate the substring to replace.
+                    index = test.find("\n", index);
+                    if (index == std::string::npos){
+                        break;
+                    }
+
+                    /* Make the replacement.
+                    test.replace(index, 2, std::endl);
+
+                    /* Advance index forward so the next iteration doesn't pick it up as well.
+                    index += 1;
+                }*/
+                std::cout << test << std::endl;
+                
 
             }else if (statement == "FOR EXPRESSION 1") {
                 // UNFINISHED HERE!

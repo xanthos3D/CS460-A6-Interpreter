@@ -1601,6 +1601,183 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
 
 }
 
+bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
+
+    //stack to store operations
+    //in (integer value, boolean value, boolean value to determine if its a int or a boolean. false = int, true = boolean.)
+    std::stack<std::tuple<int,bool,bool>> evalStack;
+
+    std::cout<<"Tokens in Operation"<<std::endl;
+    for (int i = 0; i < postfix.size(); i++) {
+        std::cout<<postfix[i].getTokenString()<<" ";
+    }
+    std::cout<<""<<std::endl;
+
+    //loop through vector of tokens
+    for (int i = 0; i < postfix.size(); i++) {
+
+        //If it's an operand, push its value to the stack
+        if(postfix[i].isIdentifier() || postfix[i].isInt() || postfix[i].isDouble()) {
+            if (postfix[i].isInt() || postfix[i].isDouble()) {
+                int value = std::stoi(postfix[i].getTokenString());
+
+                evalStack.push(std::make_tuple(value,false,false));
+            }else{
+                SymbolNode* variableToDigit = symbol_table_list.lookupSymbolParam(postfix[i].getTokenString());
+                int varToInt = variableToDigit->variableVal;
+                symbol_table_list.printTable(variableToDigit);
+                evalStack.push(std::make_tuple(varToInt,false,false));
+            }
+        }
+            //If it's an operator, evaluate the expression
+        else if (postfix[i].isBoolE() ||
+                 postfix[i].isBoolNE() || postfix[i].isBoolGT() ||
+                 postfix[i].isBoolLT()|| postfix[i].isBoolGT() ||
+                 postfix[i].isBoolGTE() || postfix[i].isBoolLTE()||
+                 postfix[i].isBoolAnd() || postfix[i].isBoolOr() ||
+                 postfix[i].isBoolTrue() ||postfix[i].isBoolFalse()) {
+
+            // Perform the operation based on the operator
+            std::tuple<int,bool,bool> operand2;
+            std::tuple<int,bool,bool> operand1;
+
+            //if we have a int value in our bool expression that set op2 correctly
+            if(std::get<2>(evalStack.top()) == false ){
+
+                //return tuple with a int
+                operand2 = std::make_tuple(std::get<0>(evalStack.top()), false,false);
+                //else if we have a boolean
+            }if(std::get<2>(evalStack.top()) == true){
+
+                //return a tuple with the boolean
+                operand2 = std::make_tuple(0,std::get<1>(evalStack.top()),true);
+
+            }
+            //if tuple formed correctly then pop stack
+            evalStack.pop();
+
+            //if we have a int value in our bool expression that set op2 correctly
+            if(std::get<2>(evalStack.top()) == false ){
+
+                //return tuple with a int
+                operand1 = std::make_tuple(std::get<0>(evalStack.top()), false,false);
+                //else if we have a boolean
+            }if(std::get<2>(evalStack.top()) == true){
+
+                //return a tuple with the boolean
+                operand1 = std::make_tuple(0,std::get<1>(evalStack.top()),true);
+
+            }
+            //if tuple formed correctly then pop stack
+            evalStack.pop();
+
+            //now to decide if we are working on two booleans, or two ints
+
+            // if we are working with 2 ints.
+            if(std::get<2>(operand1) == false && std::get<2>(operand2) == false){
+
+                //and bool operater of two ints produces a boolean
+                if (postfix[i].isBoolE()) {
+                    bool results = (std::get<0>(operand1) == std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolNE()) {
+                    bool results = (std::get<0>(operand1) != std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolGT()) {
+                    bool results = (std::get<0>(operand1) > std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolLT()) {
+                    bool results = (std::get<0>(operand1) < std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolGTE()) {
+                    bool results = (std::get<0>(operand1) >= std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolLTE()) {
+                    bool results = (std::get<0>(operand1) <= std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolAnd()) {
+                    bool results = (std::get<0>(operand1) && std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolOr()) {
+                    bool results = (std::get<0>(operand1) || std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isPlus()) {
+                    int results = (std::get<0>(operand1) + std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(results,false,false));
+                }
+                else if (postfix[i].isMinus()) {
+                    int results = (std::get<0>(operand1) - std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(results,false,false));
+                }
+                else if (postfix[i].isAsterisk()) {
+                    int results = (std::get<0>(operand1) * std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(results,false,false));
+                }
+                else if (postfix[i].isDivide()) {
+                    if (std::get<0>(operand2) == 0) throw std::runtime_error("Division by zero error IN bool!");
+
+                    int results = (std::get<0>(operand1) / std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(results,false,false));
+                }
+
+                //otherwise handle if we have two booleans.
+            }else if(std::get<2>(operand1) == true && std::get<2>(operand2) == true){
+
+                if (postfix[i].isBoolE()) {
+                    bool results = (std::get<1>(operand1) == std::get<1>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolNE()) {
+                    bool results = (std::get<1>(operand1) != std::get<1>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolGT()) {
+                    bool results = (std::get<1>(operand1) > std::get<1>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolLT()) {
+                    bool results = (std::get<1>(operand1) < std::get<1>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolGTE()) {
+                    bool results = (std::get<1>(operand1) >= std::get<1>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolLTE()) {
+                    bool results = (std::get<1>(operand1) <= std::get<1>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolAnd()) {
+                    bool results = (std::get<1>(operand1) && std::get<1>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+                else if (postfix[i].isBoolOr()) {
+                    bool results = (std::get<1>(operand1) || std::get<1>(operand2));
+                    evalStack.push(std::make_tuple(0, results,true));
+                }
+
+            }else{
+
+                std::cout<<"opperator expression has malformed stack input. "<<std::endl;
+                std::cout<<" opperator2: ( "<<std::get<0>(operand2)<<" , "<<std::get<1>(operand2)<<" , "<<std::get<2>(operand2)<<" )"<<std::endl;
+                std::cout<<" opperator1: ( "<<std::get<0>(operand1)<<" , "<<std::get<1>(operand1)<<" , "<<std::get<2>(operand1)<<" )"<<std::endl;
+                throw;
+            }
+        }
+
+    }
+
+    return std::get<1>(evalStack.top());
+}
+
 void Parser::interpret() {
 
     //gets the root of the cst
@@ -1789,11 +1966,17 @@ void Parser::interpret() {
                 //grab the node at the next position to operate on.
                 currentNode = cst->getNodeAtAddress(callStack.back());
 
+                //vector to store the postfix tokens
+                std::vector<Token> postFix;
+
                 //loop on the cst node until it no longer has any left siblings
                 while(currentNode->getRight() != nullptr){
 
                     statement = currentNode->getToken().getTokenString();
                     std::cout << "IF PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+
+                    //if not a function call push token to vector.
+                    postFix.push_back(currentNode->getToken());
 
                     //increment the programming counter.
                     callStack.back()++;
@@ -1806,13 +1989,16 @@ void Parser::interpret() {
                 statement = currentNode->getToken().getTokenString();
                 std::cout << "IF PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
 
+                //if not a function call push token to vector.
+                postFix.push_back(currentNode->getToken());
+
                 //UNFINISHED HERE!
                 //similiar to the opperation for assignment but for boolean opperation. need to evaluate the bool expression then set
                 //the value if true or false to the variable below. that way we can either skip the if statements scope, or
                 //know to evaluate the ontents of that if expression.
 
                 //operate on the stack to get a result. VALUE IS set to basic value for testing.
-                bool boolExpression = false; 
+                bool boolExpression = postFixEvalBool(postFix,callStartAddress);
 
                 // now that we have all part of the boolean expression shift forward to the parenthesis
                 callStack.back()++;
@@ -1915,11 +2101,59 @@ void Parser::interpret() {
             }else if (statement == "PRINTF") {
 
 
+                callStack.back()++;
+                currentNode = cst->getNodeAtAddress(callStack.back());
+                statement = currentNode->getToken().getTokenString();
+                std::vector<Token> variables;
+                std::cout << "adding tokens to variable vector" << std::endl;
+
+                while(currentNode->getRight() != nullptr){
+                    callStack.back()++;
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+                    std::cout << "added " << currentNode->getToken().getTokenString()<< " to vector" << std::endl;
+                    variables.push_back(currentNode->getToken());
+                }
+                std::string test = statement;
+
                 // UNFINISHED HERE!
                 //need to determine if we are printing a string by its self or variables?
                 //may need to parse through token string to put variable in the correct places.
+                //attempting to replace %d and %s with tokens
+                std::cout<<"attempting print " <<std::endl;
+                std::cout << statement << std::endl;
+                int vecInt = 0;
+                size_t index = 0;
+                while(true){
+                    // Locate the substring to replace.
+                    index = test.find("%d", index);
+                    if (index == std::string::npos){
+                        break;
+                    }
 
-                //std::cout<<"attempting print."<<std::endl;
+                    SymbolNode* variableToDigit = symbol_table_list.lookupSymbolParam(variables[vecInt].getTokenString());
+                    int varToInt = variableToDigit->variableVal;
+                    // Make the replacement.
+                    test.replace(index, 2, std::to_string(varToInt));
+                    //std::cout<<"attempting print."<<std::endl;
+
+                    // Advance index forward so the next iteration doesn't pick it up as well.
+                    index++;
+                    vecInt++;
+                }
+
+                //trying to replace \n in printf statement
+                /*while(true){
+                    // Locate the substring to replace.
+                    index = test.find("\n", index);
+                    if (index == std::string::npos){
+                        break;
+                    }
+                    /* Make the replacement.
+                    test.replace(index, 2, std::endl);
+                    /* Advance index forward so the next iteration doesn't pick it up as well.
+                    index += 1;
+                }*/
+                std::cout << test << std::endl;
 
 
 

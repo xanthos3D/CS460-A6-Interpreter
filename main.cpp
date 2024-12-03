@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
     std::cout<<"Sucessfully Created CST ------------------------------------------------------"<<std::endl;
 
     CSTparser.PrintSymbolTableLL();
-
+    
     std::cout<<"Sucessfully Created Symbol Table Linked List ------------------------------------------------------"<<std::endl;
 
     //call our cst function to convert our cst to ast

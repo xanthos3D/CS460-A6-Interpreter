@@ -123,16 +123,21 @@ public:
     bool isMain(){ return _isMain; }
     void setFunctionName(std::string functionName) { _functionName = functionName; }
     std::string getFunctionName() { return _functionName;  }
+    void setArray(){ _isArray = true; }
+    bool isArray(){return _isArray;}
+    void setVarName(std::string name){_varName = name;}
+    std::string getVarName(){return _varName;}
 
 private:
 
+    std::string _varName;
     bool _isFunction = false;
     bool child = false;
     int _address = 0;
     std::string _functionName = "";
 
     //misc idenfitier types
-    bool _identifier, _doubleQuote,_singleQuote, _semicolon,_comma, _eof, _isImportant, _isFuncName,
+    bool _identifier, _doubleQuote,_singleQuote, _semicolon,_comma, _eof, _isImportant, _isFuncName, _isArray,
     //braces and brackets
     _LParen, _RParen, _LBrace, _RBrace,_LBracket, _RBracket,
     //opperators

@@ -22,6 +22,7 @@
 #include "CSTNode.hpp"
 #include "SymbolTable.h"
 #include <vector>
+#include <map>
 
 
 class Parser {
@@ -90,12 +91,9 @@ public:
     //function to evaluate a post fix expression of token in a vector
     void postFixEval(std::vector<Token> postfix,int callStartAddress);
 
-    //function to evaluate a post fix expression of token in a vector
-    bool postFixEvalBool(std::vector<Token> postfix,int callStartAddress);
-
     //interprets the code
     void interpret();
-
+    
 
     void evaluateExpression(CSTNode *root, Token token);
 
@@ -170,6 +168,11 @@ private:
     //need to tell the difference of symbols with the same name that are in different scopes.
     std::string SymbolLocation = "";
 
+    //Keeps track of all arrays built. The string is the name of the array and the vector holds the array elements. The last int is the maxSize
+    //since technically we have to limit the size of the vector to the array size. No error message has been implemented to exit the program
+    //if we add more than the maxSize for this project. Can be implemented if further progress wants to be made.
+    std::map<std::string, std::vector<int>/*, int*/> arrayMapInt;
+    std::map<std::string, std::vector<char>/*, int*/> arrayMapChar;
 
 };
 

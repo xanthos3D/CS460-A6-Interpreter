@@ -237,6 +237,11 @@ void CST::cstToAst(){
                         std::cout<<"found DECLARATION with string: "<<lineByLine[i].getTokenString() <<std::endl;
                         Token token(lineByLine[i].getLineNum(), lineByLine[i].getCharPos());
                         token.setIdentifier("DECLARATION");
+
+                        if(lineByLine[i + 1].isArray()){
+                            token.setVarName(lineByLine[i + 1].getTokenString());
+                            token.setArray();
+                        }
                         addChild(astRoot,token);
                     }
                 }

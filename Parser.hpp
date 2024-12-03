@@ -1,3 +1,4 @@
+
 /** ***************************************************************************
  * @remark CS 460: Definition of Parser class
  *
@@ -74,16 +75,37 @@ public:
     CST* convertToAST();
 
     //New to intepreter,
+    //assigns a address in each cstnode
     void assignAddress();
+
+    //look up function that checks our list of stored functions and there memory addresses.
+    int lookUpFunction(std::string functionName);
+
+    //look up function that checks our list of stored functions and there memory addresses.
+    std::string lookUpFunctionFromAddress(int addressloc);
+
+    //adds a feunction name and memory location
+    void addFunction(std::string functionName, int addressLoc);
+
+    //function to evaluate a post fix expression of token in a vector
+    void postFixEval(std::vector<Token> postfix,int callStartAddress);
+
+    //function to evaluate a post fix expression of token in a vector
+    bool postFixEvalBool(std::vector<Token> postfix,int callStartAddress);
+
+    //interprets the code
     void interpret();
+
+
     void evaluateExpression(CSTNode *root, Token token);
 
     //function that dont seem to wrok and arnt nessesary if our parser is our interpreter.
     //CST* getRootOfAST(){ return cst; }
-    //SymbolTableList getRootofSymbolTableList() { return symbol_table_list; }   
+    //SymbolTableList getRootofSymbolTableList() { return symbol_table_list; }
 private:
 
     //position in our vector which is passed in, and current scope
+    int highestAddress;
     int index = 0;
     int  scope = 0;
     bool newStatement = false;
@@ -92,9 +114,17 @@ private:
     bool inParamList = false;
     bool inFunction = false;
     bool inImportantExp = false;
+    //used as bool; if inAssignment >= 0 we are in ASSIGNMENT
+    int inAssignment = 0;
 
     //vector passed in on declaration
     std::vector<Token> tokenVector;
+
+    //Token to hold return value
+    Token tempToken = Token("");
+
+    //Postfix vector of tokens
+    //std::vector<Token> postFix;
 
     //concrete syntax tree object
     CST* cst;
@@ -116,8 +146,30 @@ private:
     std::string tempFunctionName = "";
 
     //interpreter variables and private functions.
-    std::stack<int> stack;
     void assignAddressHelper(CSTNode *root, int address);
+
+    //keeps track of the current address of the interpreter
+    //int programCounter;
+    //std::stack<int> stack;
+
+    //vector which holds tuples. the string represents the function name, and the int represents its memory location.
+    std::vector<std::tuple<std::string,int>> functionAddresses;
+
+    //instead of using a stack we want to use a stack vector. notes
+    //this vector contains memory addresses. when we start the first memory location is main
+    //when we traverse we want to update the variable inside this vector at that starting position as we move down with
+    //each call
+    //if we run into a function call, then we need to push_back the memory address of that function to this vector
+    //then recursively call interp afteward to interp that functino call.
+    //once that functioneither returns , or if its a procedure, falls out of scope, then we need to pop the value on the end.
+    std::vector<int> callStack;
+
+    //value to return between functions.
+    int returnValue = -1;
+
+    //need to tell the difference of symbols with the same name that are in different scopes.
+    std::string SymbolLocation = "";
+
 
 };
 

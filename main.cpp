@@ -7,7 +7,7 @@ Anthony Manese
 
 how to compile program through terminal
 1. g++ main.cpp Token.cpp Tokenizer.cpp Parser.cpp CST.cpp SymbolTable.cpp
-2. ./a.out programming_assignment_6-test_file_1.c
+2. ./INTERP programming_assignment_6-test_file_1.c
 
 how to run makefile
 1.  make
@@ -96,6 +96,7 @@ int main(int argc, char *argv[]) {
     std::cout<<"Sucessfully Created CST ------------------------------------------------------"<<std::endl;
 
     CSTparser.PrintSymbolTableLL();
+
     std::cout<<"Sucessfully Created Symbol Table Linked List ------------------------------------------------------"<<std::endl;
 
     //call our cst function to convert our cst to ast
@@ -110,7 +111,7 @@ int main(int argc, char *argv[]) {
     CSTparser.assignAddress();
     std::cout<<"Sucessfully Addressed AST ------------------------------------------------------"<<std::endl;
     CSTparser.interpret();
-    
+
     //interpreter.assignAddress();
     //interpreter.interpret();
 

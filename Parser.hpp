@@ -92,7 +92,7 @@ public:
 
     //interprets the code
     void interpret();
-    
+
 
     void evaluateExpression(CSTNode *root, Token token);
 
@@ -111,9 +111,17 @@ private:
     bool inParamList = false;
     bool inFunction = false;
     bool inImportantExp = false;
+    //used as bool; if inAssignment >= 0 we are in ASSIGNMENT
+    int inAssignment = 0;
 
     //vector passed in on declaration
     std::vector<Token> tokenVector;
+
+    //Token to hold return value
+    Token tempToken = Token("");
+
+    //Postfix vector of tokens
+    //std::vector<Token> postFix;
 
     //concrete syntax tree object
     CST* cst;
@@ -158,7 +166,7 @@ private:
 
     //need to tell the difference of symbols with the same name that are in different scopes.
     std::string SymbolLocation = "";
-    
+
 
 };
 

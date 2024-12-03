@@ -33,6 +33,7 @@ void SymbolTableList::printTable(SymbolNode* node) {
                   << "DATATYPE_ARRAY_SIZE: " << current->symbolTable.datatype_array_size << "\n"
                   << "              SCOPE: " << current->symbolTable.scope << "\n"
                   << "           LOCATION: " << current->SymbolLocation << "\n"
+                  << "     VARIABLE VALUE: " << current->variableVal << "\n"
                   << std::endl;
         std::cout << std::endl;
         //otherwise print out the paramlist for a function call. note, first one should print the function its apart of, then the rest should
@@ -48,6 +49,7 @@ void SymbolTableList::printTable(SymbolNode* node) {
                   << "DATATYPE_ARRAY_SIZE: " << current->symbolTable.datatype_array_size << "\n"
                   << "              SCOPE: " << current->symbolTable.scope << "\n"
                   << "           LOCATION: " << current->SymbolLocation << "\n"
+                  << "  (PARAM) VAR VALUE: " << current->variableVal << "\n"
                   << std::endl;
         std::cout << std::endl;
     }

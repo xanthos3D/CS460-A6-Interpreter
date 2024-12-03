@@ -6,6 +6,27 @@
 #include <iomanip>
 #include "Token.hpp"
 
+//Constructor to be used to make a token with a certain string and true for _int (useful for interpreter to add to postFix vector when returning from a function
+Token::Token(const std::string tokenString)
+        :
+//Misc
+        _identifier(false), _doubleQuote(false), _singleQuote(false),
+        _semicolon(false), _comma(false), _eof(false), _isImportant(false), _isFuncName(false),
+        //Brackets & Parenthesis
+        _LParen(false), _RParen(false), _LBrace(false), _RBrace(false),
+        _LBracket(false), _RBracket(false),
+        //Operators
+        _assignmentOperator(false), _modulo(false),
+        _plus(false), _minus(false), _asterisk(false), _divide(false), _caret(false),
+        //Data Types
+        _int(true), _double(false), _char(false), _string(false), _escChar(false),
+        //Boolean Ops
+        _boolE(false),_boolNot(false), _boolNE(false), _boolGT(false), _boolLT(false),
+        _boolGTE(false), _boolLTE(false), _boolAnd(false), _boolOr(false),
+        _boolTrue(false), _boolFalse(false),
+        _tokenString(tokenString) {}
+
+
 //default constructor, want to give it line data and set up some default vairables apart of the object.
 Token::Token(int line, int pos)
         : _lineNumber(line), _charPos(pos),

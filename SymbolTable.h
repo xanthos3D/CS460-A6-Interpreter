@@ -23,7 +23,7 @@ struct SymbolNode {
     SymbolNode* next_symbol_table_element;
     int _address = 0;
     std::string SymbolLocation = "";
-    int variableVal = 0;
+    int variableVal = NULL;
 };
 
 // Define the SymbolTable class to manage the linked list of symbols

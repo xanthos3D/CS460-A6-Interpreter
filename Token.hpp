@@ -5,6 +5,9 @@
 
 class Token {
 public:
+    //Token receives string to add as its string and makes isInt true
+    Token(const std::string tokenString);
+
     // token recieves a line number ans position
     Token(int, int);
 

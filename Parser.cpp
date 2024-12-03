@@ -248,7 +248,6 @@ void Parser::parameter_list(){
     //then an array, can be valid syntax for a param list. so if we find a bracket
     if(tokenVector[index].isLBracket()){
         //call our function to handle an array [i]
-
         identifier_and_identifier_array_list();
     }
 
@@ -1241,6 +1240,7 @@ void Parser::identifier_array_list() {
         tokenVector[index].setImportant();
     }
     // ok so we found an array call, we expect to be at the open lbracket
+//    cst->getRoot()->getToken()
     expect( "[" );
 
     if (tokenVector[index].getTokenString().find("-") != std::string::npos){
@@ -1393,6 +1393,9 @@ void Parser::expect(const std::string& expected_value) {
             cst->addChild( cst->getRoot(), token );
             newStatement = false;
         } else {
+            if (tokenVector[index + 1].isLBracket()) {
+                token.setArray();
+            }
             cst->addSibling( cst->getRoot(), token ) ;
         }
         index++;
@@ -1480,14 +1483,14 @@ void Parser::assignAddressHelper(CSTNode *root, int address) {
 
 //look up function that checks our list of stored functions and there memory addresses.
 int Parser::lookUpFunction(std::string functionName){
-
+    
     //search our addres vector
     for (int i = 0; i < functionAddresses.size(); i++) {
         //std::cout<< std::get<0>(functionAddresses[i]) <<std::endl;
 
         //if the function name matches the identifier
         if(std::get<0>(functionAddresses[i]) == functionName){
-
+            
             std::cout<< "found function in address book: "<<std::get<0>(functionAddresses[i])<<std::endl;
 
             //return the memory location of that function.
@@ -1509,7 +1512,7 @@ std::string Parser::lookUpFunctionFromAddress(int addressloc){
 
         //if the function name matches the identifier
         if(std::get<1>(functionAddresses[i]) == addressloc){
-
+            
             std::cout<< "found function in address book: "<<std::get<1>(functionAddresses[i])<<std::endl;
 
             //return the memory location of that function.
@@ -1518,10 +1521,10 @@ std::string Parser::lookUpFunctionFromAddress(int addressloc){
         }
     }
 
-    //fail case, if it could not be found return -1
-    std::cout<< "couldnot find function at address: "<<addressloc<<std::endl;
-    throw;
-    return "";
+        //fail case, if it could not be found return -1
+        std::cout<< "couldnot find function at address: "<<addressloc<<std::endl;
+        throw;
+        return "";
 }
 
 //adds a function name and memory location
@@ -1630,7 +1633,7 @@ bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
             }
         }
             //If it's an operator, evaluate the expression
-        else if (postfix[i].isBoolE() || 
+        else if (postfix[i].isBoolE() ||
                  postfix[i].isBoolNE() || postfix[i].isBoolGT() ||
                  postfix[i].isBoolLT()|| postfix[i].isBoolGT() ||
                  postfix[i].isBoolGTE() || postfix[i].isBoolLTE()||
@@ -1646,7 +1649,7 @@ bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
 
                 //return tuple with a int
                 operand2 = std::make_tuple(std::get<0>(evalStack.top()), false,false);
-            //else if we have a boolean
+                //else if we have a boolean
             }if(std::get<2>(evalStack.top()) == true){
 
                 //return a tuple with the boolean
@@ -1661,7 +1664,7 @@ bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
 
                 //return tuple with a int
                 operand1 = std::make_tuple(std::get<0>(evalStack.top()), false,false);
-            //else if we have a boolean
+                //else if we have a boolean
             }if(std::get<2>(evalStack.top()) == true){
 
                 //return a tuple with the boolean
@@ -1728,7 +1731,7 @@ bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
                     evalStack.push(std::make_tuple(results,false,false));
                 }
 
-            //otherwise handle if we have two booleans.
+                //otherwise handle if we have two booleans.
             }else if(std::get<2>(operand1) == true && std::get<2>(operand2) == true){
 
                 if (postfix[i].isBoolE()) {
@@ -1836,6 +1839,14 @@ void Parser::interpret() {
             }else if (statement == "DECLARATION") {
 
                 std::cout << "DECLARATION ADDRESS: " << callStack.back() << std::endl;
+                if (currentNode->getToken().isArray()){
+                    SymbolNode* arrayNode = symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getVarName(),lookUpFunctionFromAddress(callStartAddress));
+                    if (arrayNode->symbolTable.datatype == "char") {
+                        arrayMapChar[currentNode->getToken().getVarName()] = std::vector<char>(std::stoi(arrayNode->symbolTable.datatype_array_size));
+                    }else if (arrayNode->symbolTable.datatype == "int"){
+                        arrayMapInt[currentNode->getToken().getVarName()] = std::vector<int>(std::stoi(arrayNode->symbolTable.datatype_array_size));
+                    }
+                }
                 callStack.back()++;
 
                 //assignment of a variable.
@@ -2171,7 +2182,7 @@ void Parser::interpret() {
 
             }else if (statement == "FOR EXPRESSION 1") {
                 // UNFINISHED HERE!
-                //should just store a value into our symbol table 
+                //should just store a value into our symbol table
 
             }else if (statement == "FOR EXPRESSION 2") {
                 // UNFINISHED HERE!
@@ -2186,7 +2197,7 @@ void Parser::interpret() {
                 //increment the correct variable in the symbol table.
 
             }
-            //std::cout << std::endl;
+                //std::cout << std::endl;
             else if(blockScope <= 0){
                 callStack.pop_back();
             }

@@ -5,6 +5,9 @@
 
 class Token {
 public:
+    //Token receives string to add as its string and makes isInt true
+    Token(const std::string tokenString);
+
     // token recieves a line number ans position
     Token(int, int);
 
@@ -112,7 +115,7 @@ public:
     //useful tester function so we can print the tokens and there type.
     std::string print();
 
-    //For intepreter we have some special setters 
+    //For intepreter we have some special setters
     void setIsMain(){ _isMain = true; }
     bool getIsMain() { return _isMain; }
     bool isFunction(){ return _isFunction; };
@@ -120,16 +123,21 @@ public:
     bool isMain(){ return _isMain; }
     void setFunctionName(std::string functionName) { _functionName = functionName; }
     std::string getFunctionName() { return _functionName;  }
+    void setArray(){ _isArray = true; }
+    bool isArray(){return _isArray;}
+    void setVarName(std::string name){_varName = name;}
+    std::string getVarName(){return _varName;}
 
 private:
-    
+
+    std::string _varName;
     bool _isFunction = false;
     bool child = false;
     int _address = 0;
     std::string _functionName = "";
 
     //misc idenfitier types
-    bool _identifier, _doubleQuote,_singleQuote, _semicolon,_comma, _eof, _isImportant, _isFuncName,
+    bool _identifier, _doubleQuote,_singleQuote, _semicolon,_comma, _eof, _isImportant, _isFuncName, _isArray,
     //braces and brackets
     _LParen, _RParen, _LBrace, _RBrace,_LBracket, _RBracket,
     //opperators

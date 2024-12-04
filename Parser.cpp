@@ -1174,7 +1174,7 @@ void Parser::identifier_and_identifier_array_list() {
         identifier();
 
     }else{
-   //     std::cout<<"flagging to find comma, esaping identifier_and_identifier_array_list: "<<std::endl;
+        std::cout<<"flagging to find comma, esaping identifier_and_identifier_array_list: "<<std::endl;
         //throw std::runtime_error("Expected an identifier, but got '" + tokenVector[index].getTokenString() + "'");
     }
 
@@ -1197,7 +1197,7 @@ void Parser::identifier_list() {
     if(tokenVector[index].isIdentifier()){
 
         new_symbol_table.identifier_name = tokenVector[index].getTokenString();
-  //      std::cout<<"inserting symbol: "<<new_symbol_table.identifier_name <<std::endl;
+        std::cout<<"inserting symbol: "<<new_symbol_table.identifier_name <<std::endl;
 
         if(inDeclaration == true){
             symbol_table_list.insertSymbol(new_symbol_table,SymbolLocation);
@@ -1417,7 +1417,7 @@ CST* Parser::convertToAST(){
 }
 
 void Parser::assignAddress(){
- //   std::cout<<"starting adressing of ast"<<std::endl;
+    std::cout<<"starting adressing of ast"<<std::endl;
     assignAddressHelper(cst->getRoot(), 0);
 }
 //function applies a address to every node in our ast
@@ -1431,7 +1431,7 @@ void Parser::assignAddressHelper(CSTNode *root, int address) {
     if (root->getRight() != nullptr ){
 
         root->setLocation(address);
-    //    std::cout<<"address: "<<address<<" token: "<<root->getToken().getTokenString()<<std::endl;
+        std::cout<<"address: "<<address<<" token: "<<root->getToken().getTokenString()<<std::endl;
         assignAddressHelper(root->getRight(), address+1);
 
         //if left is not nullptr traverse left sibling
@@ -1439,7 +1439,7 @@ void Parser::assignAddressHelper(CSTNode *root, int address) {
 
         //set address of the token in the node to the current address
         root->setLocation(address);
-     //   std::cout<<"address: "<<address<<" token: "<<root->getToken().getTokenString()<<std::endl;
+        std::cout<<"address: "<<address<<" token: "<<root->getToken().getTokenString()<<std::endl;
 
         //if the token is a function wee need to look it up
         if(root->getToken().isFunction()){
@@ -1447,7 +1447,7 @@ void Parser::assignAddressHelper(CSTNode *root, int address) {
             //if the token is main thenwe need to look up
             if (root->getToken().isMain()){
 
-     //           std::cout<<"address to main: "<< root->getToken().getFunctionName() <<std::endl;
+                std::cout<<"address to main: "<< root->getToken().getFunctionName() <<std::endl;
                 symbol_table_list.setAddress( symbol_table_list.lookupSymbol( root->getToken().getFunctionName() ), address);
 
                 SymbolLocation = "main";
@@ -1461,7 +1461,7 @@ void Parser::assignAddressHelper(CSTNode *root, int address) {
                 // add the function to our function table
                 addFunction(root->getToken().getFunctionName(),address);
 
-      //          std::cout<<"address to function: "<< root->getToken().getFunctionName() <<std::endl;
+                std::cout<<"address to function: "<< root->getToken().getFunctionName() <<std::endl;
                 symbol_table_list.setAddress( symbol_table_list.lookupSymbol( root->getToken().getFunctionName() ), address);
             }
 
@@ -1475,7 +1475,7 @@ void Parser::assignAddressHelper(CSTNode *root, int address) {
     }
     else{
         root->setLocation(address);
-    //    std::cout << "address: " << address << " token: " << root->getToken().getTokenString() << std::endl;
+        std::cout << "address: " << address << " token: " << root->getToken().getTokenString() << std::endl;
         assignAddressHelper(root->getRight(), address + 1);
         return;
     }
@@ -1540,9 +1540,12 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
 
     //stack to store operations
     std::stack<int> evalStack;
-  //  std::cout<<"Tokens in Operation"<<std::endl;
+    std::cout<<"Tokens in Operation"<<std::endl;
     for (int i = 0; i < postfix.size(); i++) {
- //       std::cout<<postfix[i].getTokenString()<<" ";
+        std::cout<<postfix[i].getTokenString()<<" ";
+        if (postfix[i].isIdentifier()){
+
+        }
     }
   //  std::cout<<""<<std::endl;
 
@@ -1550,26 +1553,22 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
     for (int i = 1; i < postfix.size(); i++) {
 
         //If it's an operand, push its value to the stack
-        if(postfix[i].isIdentifier() || postfix[i].isInt() || postfix[i].isDouble()) {
-            if (postfix[i].isInt() || postfix[i].isDouble()) {
+        if(postfix[i].isIdentifier() || postfix[i].isInt() || postfix[i].isDouble() || postfix[i].isString()) {
+            if(postfix[i].isString()){
+                int charToAscii = static_cast<int>(postfix[i].getTokenString().at(0));
+                std::cout << "charToAscii = " << charToAscii << std::endl;
+                evalStack.push(charToAscii);
+            }else if (postfix[i].isInt() || postfix[i].isDouble()) {
                 int value = std::stoi(postfix[i].getTokenString());
                 evalStack.push(value);
             }else{
                 SymbolNode* variableToDigit = symbol_table_list.lookupSymbolAtLocation(postfix[i].getTokenString(),
                                                                                        lookUpFunctionFromAddress(callStartAddress));
+                std::cout << " var name = " << variableToDigit->symbolTable.identifier_type << "--var value = " << variableToDigit->variableVal << "--------------------------" << std::endl;
                 int varToInt = variableToDigit->variableVal;
                 //symbol_table_list.printTable(variableToDigit);
                 evalStack.push(varToInt);
             }
-        }else if(postfix[i].isSingleQuote()){
-            //ignore quote
-            i++;
-            //push char as int
-            char hex = postfix[i].getTokenString().at(0);
-            int asciiValue = (int)hex;
-            evalStack.push(hex);
-            //ignore second quote
-            i++;
         }
             //If it's an operator, evaluate the expression
         else if (postfix[i].isMinus() || postfix[i].isPlus() ||
@@ -1617,11 +1616,11 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
 void Parser::postFixEvalChar(std::vector<Token> postfix,int callStartAddress){
     //stack to store operations
     std::stack<int> evalStack;
- //   std::cout<<"Tokens in Operation"<<std::endl;
+    std::cout<<"Tokens in Operation"<<std::endl;
     for (int i = 0; i < postfix.size(); i++) {
         std::cout<<postfix[i].getTokenString()<<" ";
     }
- //   std::cout<<""<<std::endl;
+    std::cout<<""<<std::endl;
     //loop through vector of tokens
     for (int i = 1; i < postfix.size(); i++) {
         //If its a double quote then we evaluate the string by separating into chars and skip quotes on either side
@@ -1698,23 +1697,28 @@ bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
     //in (integer value, boolean value, boolean value to determine if its a int or a boolean. false = int, true = boolean.)
     std::stack<std::tuple<int,bool,bool>> evalStack;
 
-//    std::cout<<"Tokens in Operation"<<std::endl;
+    std::cout<<"Tokens in Operation"<<std::endl;
     for (int i = 0; i < postfix.size(); i++) {
-   //     std::cout<<postfix[i].getTokenString()<<" ";
+        std::cout<<postfix[i].getTokenString()<<" ";
     }
- //   std::cout<<""<<std::endl;
+    std::cout<<""<<std::endl;
 
     //loop through vector of tokens
     for (int i = 0; i < postfix.size(); i++) {
 
         //If it's an operand, push its value to the stack
-        if(postfix[i].isIdentifier() || postfix[i].isInt() || postfix[i].isDouble()) {
-            if (postfix[i].isInt() || postfix[i].isDouble()) {
+        if(postfix[i].isIdentifier() || postfix[i].isInt() || postfix[i].isDouble() || postfix[i].isString()) {
+            if(postfix[i].isString()){
+                int charToAscii = static_cast<int>(postfix[i].getTokenString().at(0));
+                std::cout << "charToAscii = " << charToAscii << std::endl;
+                evalStack.push(std::make_tuple(charToAscii,false,false));
+            }else if (postfix[i].isInt() || postfix[i].isDouble()) {
                 int value = std::stoi(postfix[i].getTokenString());
 
                 evalStack.push(std::make_tuple(value,false,false));
-            }else{
-                SymbolNode* variableToDigit = symbol_table_list.lookupSymbolParam(postfix[i].getTokenString());
+            }else {
+                SymbolNode* variableToDigit = symbol_table_list.lookupSymbolAtLocation(postfix[i].getTokenString(),
+                                                                                       lookUpFunctionFromAddress(callStartAddress));
                 int varToInt = variableToDigit->variableVal;
                 //symbol_table_list.printTable(variableToDigit);
                 evalStack.push(std::make_tuple(varToInt,false,false));
@@ -1865,8 +1869,8 @@ bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
                 std::cout<<" opperator1: ( "<<std::get<0>(operand1)<<" , "<<std::get<1>(operand1)<<" , "<<std::get<2>(operand1)<<" )"<<std::endl;
                 throw;
             }
- //           std::cout<<" opperator2: ( "<<std::get<0>(operand2)<<" , "<<std::get<1>(operand2)<<" , "<<std::get<2>(operand2)<<" )"<<std::endl;
- //           std::cout<<" opperator1: ( "<<std::get<0>(operand1)<<" , "<<std::get<1>(operand1)<<" , "<<std::get<2>(operand1)<<" )"<<std::endl;
+            std::cout<<" opperator2: ( "<<std::get<0>(operand2)<<" , "<<std::get<1>(operand2)<<" , "<<std::get<2>(operand2)<<" )"<<std::endl;
+            std::cout<<" opperator1: ( "<<std::get<0>(operand1)<<" , "<<std::get<1>(operand1)<<" , "<<std::get<2>(operand1)<<" )"<<std::endl;
         }
 
     }
@@ -1898,9 +1902,9 @@ void Parser::interpret() {
 
     //tester to see where we currently are interpreting.
     if(callStack.size()< 2){
-//        std::cout << "main Address is: " << callStack.back() << std::endl;
+        std::cout << "main Address is: " << callStack.back() << std::endl;
     }else{
- //       std::cout << "function Address is: " << callStack.back() << std::endl;
+        std::cout << "function Address is: " << callStack.back() << std::endl;
     }
 
     
@@ -1923,19 +1927,19 @@ void Parser::interpret() {
             if (statement == "BEGIN BLOCK") {
 
                 blockScope++;
- //               std::cout << "BEGIN BLOCK ADDRESS: " << callStack.back() <<" statement: "<<statement<<" blockScope: " << blockScope << std::endl;
+                std::cout << "BEGIN BLOCK ADDRESS: " << callStack.back() <<" statement: "<<statement<<" blockScope: " << blockScope << std::endl;
                 callStack.back()++;
 
             //like wise if we find a end block then we de increment the blockScope
             }else if (statement == "END BLOCK") {
 
                 blockScope--;
-//                std::cout << "END BLOCK ADDRESS: " << callStack.back() <<" statement: "<<statement<<" blockScope: " << blockScope << std::endl;
-//                std::cout<<"forLoopStart: "<<forLoopStart<<" forLoopScope: "<<forLoopScope<<" forLoopCallLoc: "<<forLoopCallLoc<<std::endl;
+                std::cout << "END BLOCK ADDRESS: " << callStack.back() <<" statement: "<<statement<<" blockScope: " << blockScope << std::endl;
+                std::cout<<"forLoopStart: "<<forLoopStart<<" forLoopScope: "<<forLoopScope<<" forLoopCallLoc: "<<forLoopCallLoc<<std::endl;
                 
                 // case to see if we fallout of scope. this case usually happens when the function doesn't have a return call.
                 if(blockScope == 0){
- //                   std::cout<<"exiting runtime"<<std::endl;
+                    std::cout<<"exiting runtime"<<std::endl;
                     callStack.pop_back();
                 // otherwise we want to continue as normal
                 }else{
@@ -1947,7 +1951,8 @@ void Parser::interpret() {
                 //and the block scope is equal to the forloops scope, meaning we have escaped the bound of the loops scope
                 //and we are in the correct interp call as the forloopcall needs to mats the start call address.
                 if(forLoopStart > 0 && blockScope == forLoopScope && forLoopCallLoc == callStartAddress){
-//                    std::cout<<"end of for loop, jumping back to for loop start position"<<std::endl;
+                    std::cout<<"end of for loop, jumping back to for loop start position"<<std::endl;
+                    forLoopEnd = callStack.back();
                     callStack.back() = forLoopStart;
 
                 }
@@ -1955,7 +1960,7 @@ void Parser::interpret() {
             //for a declaration, just keep moving?
             }else if (statement == "DECLARATION") {
 
-  //              std::cout << "DECLARATION ADDRESS: " << callStack.back() << std::endl;
+                std::cout << "DECLARATION ADDRESS: " << callStack.back() << std::endl;
                 if (currentNode->getToken().isArray()){
                     SymbolNode* arrayNode = symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getVarName(),lookUpFunctionFromAddress(callStartAddress));
                     if (arrayNode->symbolTable.datatype == "char") {
@@ -1972,7 +1977,7 @@ void Parser::interpret() {
                 inAssignment++;
 
                 //print out token with label assignment
-    //            std::cout << "ASSIGNMENT ADDRESS: " << callStack.back() << std::endl;
+                std::cout << "ASSIGNMENT ADDRESS: " << callStack.back() << std::endl;
                 callStack.back()++;
 
                 //grab the node at the next position to operate on.
@@ -1986,7 +1991,7 @@ void Parser::interpret() {
 
                     //print out components of the of the assignment operation
                     statement = currentNode->getToken().getTokenString();
-    //                std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+                    std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
 
                     //if we find a function call in a assignment, then we need to perform some recursion
                     //call our look up function to find out if the given token is a function in our function list
@@ -2007,7 +2012,7 @@ void Parser::interpret() {
                         while(currentNode->getToken().getTokenString() != ")"){
 
                             //print out the function call parameters
-   //                         std::cout<<"found param for function call: "<<currentNode->getToken().getTokenString()<<std::endl;
+                           std::cout<<"found param for function call: "<<currentNode->getToken().getTokenString()<<std::endl;
 
                             //Initialize the variable with a value by using the variable inside the []
                             if(currentNode->getRight()->getToken().isLBracket()){
@@ -2038,7 +2043,7 @@ void Parser::interpret() {
                                 symbol_table_list.setVarVal(symbolParam, equalToSymbol->variableVal);
                             }
 
-    //                        std::cout<<"param value set to:"<<symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction))->variableVal<<"VALUE HERE VALUE HERE VALUE HERE"<<std::endl;
+                            std::cout<<"param value set to:"<<symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction))->variableVal<<"VALUE HERE VALUE HERE VALUE HERE"<<std::endl;
 
                             //move to the next element in memory
                             callStack.back()++;
@@ -2062,6 +2067,22 @@ void Parser::interpret() {
 
 
 
+                    }else if(currentNode->getToken().isSingleQuote()){
+                        //increment the programming counter. skip the single quote
+                        callStack.back()++;
+
+                        //move to next left sibling
+                        currentNode = cst->getNodeAtAddress(callStack.back());
+                        //currentNode->getToken().setChar();
+                        //if not a function call push token to vector.
+                        postFix.push_back(currentNode->getToken());
+                        //increment the programming counter. skip the second single quote
+                        callStack.back()++;
+
+                        //move to next left sibling
+                        currentNode = cst->getNodeAtAddress(callStack.back());
+
+
                     }else{
 
                         //if not a function call push token to vector.
@@ -2079,7 +2100,7 @@ void Parser::interpret() {
 
                 //print out components of the of the assignment operation.
                 statement = currentNode->getToken().getTokenString();
- //               std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+                std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
 
                 postFix.push_back(currentNode->getToken());
                 //UNFINISHED HERE!
@@ -2092,6 +2113,7 @@ void Parser::interpret() {
                    || postFix[0].isChar()){
                     postFixEvalChar(postFix, callStartAddress);
                 }else {
+                    std::cout << "---------------ENDEDNEDNEDNNEDNEDN------------------"<<std::endl;
                     postFixEval(postFix, callStartAddress);
                 }
 
@@ -2104,7 +2126,7 @@ void Parser::interpret() {
             }else if (statement == "IF") {
 
                 statement = currentNode->getToken().getTokenString();
-   //             std::cout << "IF ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+                std::cout << "IF ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
 
                 //move past the if identifier.
                 callStack.back()++;
@@ -2119,10 +2141,28 @@ void Parser::interpret() {
                 while(currentNode->getRight() != nullptr){
 
                     statement = currentNode->getToken().getTokenString();
-    //                std::cout << "IF PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+                    std::cout << "IF PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
 
-                    //if not a function call push token to vector.
-                    postFix.push_back(currentNode->getToken());
+                    if(currentNode->getToken().isSingleQuote()){
+                        //increment the programming counter.
+                        callStack.back()++;
+
+                        //move to next left sibling
+                        currentNode = cst->getNodeAtAddress(callStack.back());
+                        currentNode->getToken().setChar();
+                        //if not a function call push token to vector.
+                        postFix.push_back(currentNode->getToken());
+                        //increment the programming counter.
+                        callStack.back()++;
+
+                        //move to next left sibling
+                        currentNode = cst->getNodeAtAddress(callStack.back());
+
+
+                    }else{
+                        //if not a function call push token to vector.
+                        postFix.push_back(currentNode->getToken());
+                    }
 
                     //increment the programming counter.
                     callStack.back()++;
@@ -2133,7 +2173,7 @@ void Parser::interpret() {
                 }
                 //once we find the node with a null right sibling, we also want to ad that as well to our if parts
                 statement = currentNode->getToken().getTokenString();
-    //            std::cout << "IF PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+                std::cout << "IF PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
 
                 //if not a function call push token to vector.
                 postFix.push_back(currentNode->getToken());
@@ -2154,13 +2194,13 @@ void Parser::interpret() {
                 //if result is true then  operate on this blocking scope like normal
                 if(boolExpression == true){
 
-    //                std::cout << "bool expression true"<< std::endl;
-    //                std::cout << "processing If statement..." << std::endl;
+                    std::cout << "bool expression true"<< std::endl;
+                    std::cout << "processing If statement..." << std::endl;
 
                     //else if its false, then skip that block, using the block scoping to skip it
                 }else{
 
-     //               std::cout << "bool expression false"<< std::endl;
+                    std::cout << "bool expression false"<< std::endl;
 
                     //important! the token we would be on if we didnt increment by one is a begin block
                     //this is bad because it messes up the skip function if bool is false.
@@ -2186,13 +2226,13 @@ void Parser::interpret() {
                         if (statement == "BEGIN BLOCK") {
 
                             blockScope++;
-      //                      std::cout << "BEGIN BLOCK in if skip ADDRESS: " << callStack.back() <<"blockScope: " << blockScope << std::endl;
+                            std::cout << "BEGIN BLOCK in if skip ADDRESS: " << callStack.back() <<"blockScope: " << blockScope << std::endl;
 
                             //mock end case. functions like the begin block case but specially tailored for skipping things in this scope
                         }else if (statement == "END BLOCK") {
 
                             blockScope--;
-      //                      std::cout << "END BLOCK in if skip ADDRESS: " << callStack.back() <<" blockScope: " << blockScope << std::endl;
+                            std::cout << "END BLOCK in if skip ADDRESS: " << callStack.back() <<" blockScope: " << blockScope << std::endl;
                         }
 
                         //move past the end block
@@ -2206,22 +2246,22 @@ void Parser::interpret() {
                 if (statement == "ELSE" && !boolExpression) {
                     _else = true;
                 }
-   //             std::cout << "statement: " << statement << std::endl;
-    //            std::cout << "current token: " << currentNode->getToken().getTokenString() << " blockScope: "
-     //                     << blockScope << std::endl;
+                std::cout << "statement: " << statement << std::endl;
+                std::cout << "current token: " << currentNode->getToken().getTokenString() << " blockScope: "
+                          << blockScope << std::endl;
 
 
 
                 //Preform only if the Statement is else and if the boolexpression prior was false
             } else if (statement == "ELSE" && _else) {
-    //            std::cout << "processing else statement..." << std::endl;
+                std::cout << "processing else statement..." << std::endl;
                 _else = false;      // to avoid future ambiguity set this false
                 callStack.back()++;
 
                 //SInce the boolexpression was true we skip anything inside the else statement
             } else if (statement == "ELSE" && !_else) {
                 callStack.back()++;
-    //            std::cout << "Skipping else statement..." << std::endl;
+                std::cout << "Skipping else statement..." << std::endl;
                 callStack.back()++;
                 int targetScope = blockScope;
                 blockScope++;
@@ -2236,15 +2276,15 @@ void Parser::interpret() {
                     if (statement == "BEGIN BLOCK") {
 
                         blockScope++;
-            //            std::cout << "BEGIN BLOCK in if skip ADDRESS: " << callStack.back() << "blockScope: "
-            //                      << blockScope << std::endl;
+                        std::cout << "BEGIN BLOCK in if skip ADDRESS: " << callStack.back() << "blockScope: "
+                                  << blockScope << std::endl;
 
                         //mock end case. functions like the begin block case but specially tailored for skipping things in this scope
                     } else if (statement == "END BLOCK") {
 
                         blockScope--;
-           //             std::cout << "END BLOCK in if skip ADDRESS: " << callStack.back() << " blockScope: "
-           //                       << blockScope << std::endl;
+                        std::cout << "END BLOCK in if skip ADDRESS: " << callStack.back() << " blockScope: "
+                                  << blockScope << std::endl;
                     }
 
                     //move past the end block
@@ -2260,7 +2300,7 @@ void Parser::interpret() {
                 //if its a variable then return that value
                 if(currentNode->getToken().isIdentifier() == true){
 
-         //           std::cout<<"found identifier to return."<<std::endl;
+                    std::cout<<"found identifier to return."<<std::endl;
 
                     //search the symbol table for our return value
                     SymbolNode* symbolToReturn = symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getTokenString(),lookUpFunctionFromAddress(callStartAddress));
@@ -2269,13 +2309,13 @@ void Parser::interpret() {
                     if(inAssignment > 0) {
                         tempToken = Token(std::to_string(returnValue));
                     }
-         //           std::cout<<"returnValue: "<<returnValue<<std::endl;
+                    std::cout<<"returnValue: "<<returnValue<<std::endl;
 
                 }
 
                 //then pop the current mem of the call stack stopping the loop of this function since we are finished in this call
                 callStack.pop_back();
-         //       std::cout<<"REACHED RETURN CALL."<<std::endl;
+                std::cout<<"REACHED RETURN CALL."<<std::endl;
 
             //handles printing of output once we are finished.
             }else if (statement == "PRINTF") {
@@ -2283,22 +2323,49 @@ void Parser::interpret() {
                 currentNode = cst->getNodeAtAddress(callStack.back());
                 statement = currentNode->getToken().getTokenString();
                 std::vector<Token> variables;
-        //        std::cout << "adding tokens to variable vector" << std::endl;
+                std::cout << "adding tokens to variable vector" << std::endl;
 
                 while(currentNode->getRight() != nullptr){
                     callStack.back()++;
                     currentNode = cst->getNodeAtAddress(callStack.back());
-           //         std::cout << "added " << currentNode->getToken().getTokenString()<< " to vector" << std::endl;
+                    std::cout << "added " << currentNode->getToken().getTokenString()<< " to vector" << std::endl;
                     variables.push_back(currentNode->getToken());
                 }
                 std::string test = statement;
                 //need to determine if we are printing a string by its self or variables?
                 //may need to parse through token string to put variable in the correct places.
                 //attempting to replace %d and %s with tokens
-        //        std::cout<<"attempting print " <<std::endl;
-        //        std::cout << statement << std::endl;
+                std::cout<<"attempting print " <<std::endl;
+                std::cout << statement << std::endl;
                 int vecInt = 0;
                 size_t index = 0;
+                //replace %s in printf
+                while(true){
+                    std::string replaceStr = "";
+                    // Locate the substring to replace.
+                    index = test.find("%s", index);
+                    if (index == std::string::npos){
+                        break;
+                    }
+                    if(arrayMapChar.find(variables[vecInt].getTokenString()) != arrayMapChar.end()){
+                        for(int i = 0; i < arrayMapChar[variables[vecInt].getTokenString()].size() - 1; i++){
+                            replaceStr += (char)arrayMapChar[variables[vecInt].getTokenString()][i];
+                        }
+                    }else{
+                        SymbolNode* variableToDigit = symbol_table_list.lookupSymbolParam(variables[vecInt].getTokenString());
+                        int varToInt = variableToDigit->variableVal;
+                        replaceStr = std::to_string(varToInt);
+                    }
+
+
+                    // Make the replacement.
+                    test.replace(index, 2, replaceStr);
+
+                    // Advance index forward so the next iteration doesn't pick it up as well.
+                    index++;
+                    vecInt++;
+                }
+                index = 0;
                 //replace %d in printf
                 while(true){
                     // Locate the substring to replace.
@@ -2316,23 +2383,6 @@ void Parser::interpret() {
                     index++;
                     vecInt++;
                 }
-                index = 0;
-                //replace %s in printf
-                /*while(true){
-                    // Locate the substring to replace.
-                    index = test.find("%s", index);
-                    if (index == std::string::npos){
-                        break;
-                    }
-                    SymbolNode* variableToDigit = symbol_table_list.lookupSymbolParam(variables[vecInt].getTokenString());
-                    int varToInt = variableToDigit->variableVal;
-                    // Make the replacement.
-                    test.replace(index, 2, std::to_string(varToInt));
-
-                    // Advance index forward so the next iteration doesn't pick it up as well.
-                    index++;
-                    vecInt++;
-                }*/
                 //replace \n in printf statement
                 index = 0;
                 while(true){
@@ -2350,21 +2400,21 @@ void Parser::interpret() {
                     //Advance index forward so the next iteration doesn't pick it up as well.
                     index += 1;
                 }
-                std::cout << test;
+                std::cout << test << std::endl;
                 callStack.back()++;
 
             // for the for loop we need to do the same logic as our assign case for parts 1 and 3.
             }else if (statement == "FOR EXPRESSION 1" || statement == "FOR EXPRESSION 3") {
 
                 inAssignment++;
-            //    std::cout << "FOR Expression 1 ADDRESS: " << callStack.back() << std::endl;
+                std::cout << statement << " ADDRESS: " << callStack.back() << std::endl;
                 callStack.back()++;
                 currentNode = cst->getNodeAtAddress(callStack.back());
                 std::vector<Token> postFix;
 
                 while(currentNode->getRight() != nullptr){
                     statement = currentNode->getToken().getTokenString();
-            //        std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+                    std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
                     int foundFunction = lookUpFunction(currentNode->getToken().getTokenString());
 
                     if(foundFunction != -1){
@@ -2373,11 +2423,11 @@ void Parser::interpret() {
                         currentNode = cst->getNodeAtAddress(callStack.back());
 
                         while(currentNode->getToken().getTokenString() != ")"){
-                      //      std::cout<<"found param for function call: "<<currentNode->getToken().getTokenString()<<std::endl;
+                            std::cout<<"found param for function call: "<<currentNode->getToken().getTokenString()<<std::endl;
                             SymbolNode* symbolParam = symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction));
                             SymbolNode* equalToSymbol = symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getTokenString(),lookUpFunctionFromAddress(callStartAddress));
                             symbol_table_list.setVarVal(symbolParam,equalToSymbol->variableVal);
-                      //      std::cout<<"param value set to:"<<symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction))->variableVal<<"VALUE HERE VALUE HERE VALUE HERE"<<std::endl;
+                            std::cout<<"param value set to:"<<symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction))->variableVal<<"VALUE HERE VALUE HERE VALUE HERE"<<std::endl;
                             callStack.back()++;
                             currentNode = cst->getNodeAtAddress(callStack.back());
 
@@ -2393,7 +2443,7 @@ void Parser::interpret() {
                     currentNode = cst->getNodeAtAddress(callStack.back());
                 }
                 statement = currentNode->getToken().getTokenString();
-            //    std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+                std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
 
                 postFix.push_back(currentNode->getToken());
                 postFixEval(postFix,callStartAddress);
@@ -2401,19 +2451,20 @@ void Parser::interpret() {
                 inAssignment--;
 
                 //currentNode = cst->getNodeAtAddress(callStack.back());
-
             // bool expression with some extra steps.
             }else if (statement == "FOR EXPRESSION 2" || statement == "WHILE") {
 
+                std::cout << "IN FOR 2" << std::endl;
+
                 // Save the starting point of the FOR loop
                 forLoopStart = callStack.back(); 
-            //    std::cout << "FOR LOOP ADDRESS: " << callStack.back() << std::endl;
+                std::cout << "FOR LOOP ADDRESS: " << callStack.back() << std::endl;
 
                 //important variable to tell where the for loop was called in memory
                 int forLoopOriginalAdress = callStack.back();
 
                 callStack.back()++;
-             //   std::cout << "FOR LOOP ADDRESS: " << callStack.back() << std::endl;
+                std::cout << "FOR LOOP ADDRESS: " << callStack.back() << std::endl;
                 currentNode = cst->getNodeAtAddress(callStack.back());
                 
                 //make vector to fill our tokens for our boolean operation
@@ -2430,9 +2481,9 @@ void Parser::interpret() {
                 currentNode = cst->getNodeAtAddress(callStack.back());
 
                 //if we find the expression to be true, then we want to loop
-                if(postFixEvalBool(postFix, forLoopStart)){
+                if(postFixEvalBool(postFix, callStartAddress)){
 
-                //    std::cout << "for expression true"<< std::endl;
+                    std::cout << "for expression true"<< std::endl;
                     
                     //set the forloopstart, to the address right on the FOR EXPRESSION 2 node
                     forLoopStart = forLoopOriginalAdress;
@@ -2450,53 +2501,57 @@ void Parser::interpret() {
                     forLoopStart = -1;
                     forLoopScope = -1;
                     forLoopCallLoc  = -1;
+                    callStack.back() = forLoopEnd;
+                    forLoopEnd = -1;
 
                     //then same logic as our if statement when skipping the block
-                 //   std::cout << "bool expression in loop  false"<< std::endl;
+                    std::cout << "bool expression in loop  false"<< std::endl;
 
-                    //important! the token we would be on if we didnt increment by one is a begin block
-                    //this is bad because it messes up the skip function if bool is false.
-                    //before we loop increment by one to simulate eating the begin block
-                    callStack.back()++;
 
-                    //set the temp scope variable to tell when we should stop ignoring code in the scope of the if statement.
-                    int targetScope = blockScope;
 
-                    //increase the scope by 1 to resemble eating the open paren.
-                    blockScope++;
-
-                    //std::cout << "blockScope: "<<blockScope<<" targetScope: "<<targetScope<< std::endl;
-
-                    //while the blockScope is greater than the targetScope
-                    while(blockScope > targetScope){
-
-                        // upodate node contents
-                        currentNode = cst->getNodeAtAddress(callStack.back());
-                        statement = currentNode->getToken().getTokenString();
-
-                        //mock begin case. functions like the begin block case but specially tailored for skipping things in this scope
-                        if (statement == "BEGIN BLOCK") {
-
-                            blockScope++;
-                     //       std::cout << "BEGIN BLOCK in if skip ADDRESS: " << callStack.back() <<"blockScope: " << blockScope << std::endl;
-
-                            //mock end case. functions like the begin block case but specially tailored for skipping things in this scope
-                        }else if (statement == "END BLOCK") {
-
-                            blockScope--;
-                      //      std::cout << "END BLOCK in if skip ADDRESS: " << callStack.back() <<" blockScope: " << blockScope << std::endl;
-                        }
-
-                        //move past the end block
-                        callStack.back()++;
-                    }
+//                    //important! the token we would be on if we didnt increment by one is a begin block
+//                    //this is bad because it messes up the skip function if bool is false.
+//                    //before we loop increment by one to simulate eating the begin block
+//                    callStack.back()++;
+//
+//                    //set the temp scope variable to tell when we should stop ignoring code in the scope of the if statement.
+//                    int targetScope = blockScope;
+//
+//                    //increase the scope by 1 to resemble eating the open paren.
+//                    blockScope++;
+//
+//                    std::cout << "blockScope: "<<blockScope<<" targetScope: "<<targetScope<< std::endl;
+//
+//                    //while the blockScope is greater than the targetScope
+//                    while(blockScope > targetScope){
+//
+//                        // upodate node contents
+//                        currentNode = cst->getNodeAtAddress(callStack.back());
+//                        statement = currentNode->getToken().getTokenString();
+//
+//                        //mock begin case. functions like the begin block case but specially tailored for skipping things in this scope
+//                        if (statement == "BEGIN BLOCK") {
+//
+//                            blockScope++;
+//                            std::cout << "BEGIN BLOCK in if skip ADDRESS: " << callStack.back() <<"blockScope: " << blockScope << " TARGET SCOPE " << targetScope <<  " ---FOR LOOP SCOPE " << forLoopScope << std::endl;
+//
+//                            //mock end case. functions like the begin block case but specially tailored for skipping things in this scope
+//                        }else if (statement == "END BLOCK") {
+//
+//                            blockScope--;
+//                            std::cout << "END BLOCK in if skip ADDRESS: " << callStack.back() <<" blockScope: " << blockScope << " TARGET SCOPE " << targetScope <<  " ---FOR LOOP SCOPE " << forLoopScope << std::endl;
+//                        }
+//
+//                        //move past the end block
+//                        callStack.back()++;
+//                    }
                 }
 
                 //move the token forward.
                 currentNode = cst->getNodeAtAddress(callStack.back());
                 statement = currentNode->getToken().getTokenString();
-            //    std::cout <<"statement: "<<statement<<std::endl;
-            //    std::cout<<"current token: "<<currentNode->getToken().getTokenString()<<" blockScope: "<<blockScope<<std::endl;
+                std::cout <<"statement: "<<statement<<std::endl;
+                std::cout<<"current token: "<<currentNode->getToken().getTokenString()<<" blockScope: "<<blockScope<<std::endl;
 
             }else if(statement == "CALL"){
             //if we find a call move one forward
@@ -2523,14 +2578,14 @@ void Parser::interpret() {
                 while(currentNode->getToken().getTokenString() != ")"){
 
                     //print out the function call parameters
-           //         std::cout<<"found param for function call: "<<currentNode->getToken().getTokenString()<<std::endl;
+                    std::cout<<"found param for function call: "<<currentNode->getToken().getTokenString()<<std::endl;
 
                             
                     SymbolNode* symbolParam = symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction));
                     SymbolNode* equalToSymbol = symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getTokenString(),lookUpFunctionFromAddress(callStartAddress));
                     symbol_table_list.setVarVal(symbolParam,equalToSymbol->variableVal);
 
-          //          std::cout<<"param value set to:"<<symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction))->variableVal<<"VALUE HERE VALUE HERE VALUE HERE"<<std::endl;
+                    std::cout<<"param value set to:"<<symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction))->variableVal<<"VALUE HERE VALUE HERE VALUE HERE"<<std::endl;
 
                     //move to the next element in memory
                     callStack.back()++;

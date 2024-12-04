@@ -130,9 +130,8 @@ void Token::setDouble(std::string input){
     _double = true;
     _tokenString = input;
 }
-void Token::setChar(std::string input){
+void Token::setChar(){
     _char = true;
-    _tokenString = input;
 }
 
 void Token::setEscChar(std::string input){

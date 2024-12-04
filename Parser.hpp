@@ -121,12 +121,19 @@ private:
     //used as bool; if inAssignment >= 0 we are in ASSIGNMENT
     int inAssignment = 0;
     bool _else = false;
+    int keepF3Address;
 
     //vector passed in on declaration
     std::vector<Token> tokenVector;
 
     //Token to hold return value
     Token tempToken = Token("");
+
+    //Track the value of for expression 3
+    int forThreeVal = 0;
+
+    //Track whether we are in for expression 3 so that we update forThreeVal instead of the symbolNode
+    bool inExp3 = false;
 
     //Postfix vector of tokens
     //std::vector<Token> postFix;
@@ -185,6 +192,8 @@ private:
     int forLoopStart = -1;
     int forLoopScope = -1;
     int forLoopCallLoc = -1;
+    int forLoopEnd = -1;
+    int forExp3 = 0;
 
 };
 

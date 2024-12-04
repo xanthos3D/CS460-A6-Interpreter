@@ -82,7 +82,7 @@ public:
 
     void setInt(std::string);
     void setDouble(std::string);
-    void setChar(std::string);
+    void setChar();
     void setEscChar(std::string);
     void setString(std::string);
 

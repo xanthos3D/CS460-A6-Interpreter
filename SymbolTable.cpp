@@ -97,7 +97,7 @@ SymbolNode *SymbolTableList::lookupSymbolHelper(SymbolNode* head,const std::stri
 
     //otherwise check if it is the name of the symbol table we are looking for
     if(name == head->symbolTable.identifier_name ){
-     //   std::cout<<""<<std::endl;
+        std::cout<<""<<std::endl;
         //printTable(head);
         return head;
 
@@ -129,7 +129,7 @@ SymbolNode *SymbolTableList::lookupSymbolAtLocationHelper(SymbolNode* head,const
 
     //otherwise check if it is the name of the symbol table we are looking for
     if(name == head->symbolTable.identifier_name && head->SymbolLocation == location){
-    //    std::cout<<""<<std::endl;
+        std::cout<<""<<std::endl;
         //printTable(head);
         return head;
 

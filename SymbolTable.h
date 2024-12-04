@@ -14,6 +14,7 @@ struct SymbolTable {
     std::string datatype_array_size = "0";
     int scope = 0;
     bool isParamList = false;
+    bool isForVariable;
 
 };
 
@@ -23,7 +24,7 @@ struct SymbolNode {
     SymbolNode* next_symbol_table_element;
     int _address = 0;
     std::string SymbolLocation = "";
-    int variableVal = NULL;
+    int variableVal = 0;
 };
 
 // Define the SymbolTable class to manage the linked list of symbols
@@ -52,7 +53,7 @@ public:
     }
     void setAddress(SymbolNode* current, int address ) {
         current->_address = address;
- //       std::cout<<"setting address in symbol node current->_address: "<<current->_address<<std::endl;
+        std::cout<<"setting address in symbol node current->_address: "<<current->_address<<std::endl;
     }
 
 

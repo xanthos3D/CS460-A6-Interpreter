@@ -123,7 +123,7 @@ SymbolNode *SymbolTableList::lookupSymbolAtLocationHelper(SymbolNode* head,const
     if (head == nullptr){
  //       std::cout<<"searched for name: "<< name <<"in location: "<< location <<" but it is not present in the table."<<std::endl;
    //     std::cout<<"searching for param as a paramlist symbol? "<<std::endl;
-        return lookupSymbolParam(name);
+        return lookupSymbolParam(location);
         throw;
     }
 

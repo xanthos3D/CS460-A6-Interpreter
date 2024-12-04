@@ -1547,7 +1547,7 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
   //  std::cout<<""<<std::endl;
 
     //loop through vector of tokens
-    for (int i = 0; i < postfix.size(); i++) {
+    for (int i = 1; i < postfix.size(); i++) {
 
         //If it's an operand, push its value to the stack
         if(postfix[i].isIdentifier() || postfix[i].isInt() || postfix[i].isDouble()) {
@@ -1555,11 +1555,21 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
                 int value = std::stoi(postfix[i].getTokenString());
                 evalStack.push(value);
             }else{
-                SymbolNode* variableToDigit = symbol_table_list.lookupSymbolParam(postfix[i].getTokenString());
+                SymbolNode* variableToDigit = symbol_table_list.lookupSymbolAtLocation(postfix[i].getTokenString(),
+                                                                                       lookUpFunctionFromAddress(callStartAddress));
                 int varToInt = variableToDigit->variableVal;
                 //symbol_table_list.printTable(variableToDigit);
                 evalStack.push(varToInt);
             }
+        }else if(postfix[i].isSingleQuote()){
+            //ignore quote
+            i++;
+            //push char as int
+            char hex = postfix[i].getTokenString().at(0);
+            int asciiValue = (int)hex;
+            evalStack.push(hex);
+            //ignore second quote
+            i++;
         }
             //If it's an operator, evaluate the expression
         else if (postfix[i].isMinus() || postfix[i].isPlus() ||
@@ -1603,6 +1613,84 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
     }
 
 }
+
+void Parser::postFixEvalChar(std::vector<Token> postfix,int callStartAddress){
+    //stack to store operations
+    std::stack<int> evalStack;
+    std::cout<<"Tokens in Operation"<<std::endl;
+    for (int i = 0; i < postfix.size(); i++) {
+        std::cout<<postfix[i].getTokenString()<<" ";
+    }
+    std::cout<<""<<std::endl;
+    //loop through vector of tokens
+    for (int i = 1; i < postfix.size(); i++) {
+        //If its a double quote then we evaluate the string by separating into chars and skip quotes on either side
+        if(postfix[i].isDoubleQuote()) {
+            if (postfix[i+1].isAssignmentOperator()){
+                i++;
+                continue;
+            }
+            std::string stringToChar = postfix[++i].getTokenString();
+            for(int j = 0; j < stringToChar.size(); j++){
+                if (stringToChar[j] == '\\'){
+                    j++;
+                    if (stringToChar[j] == 'x'){
+                        j++;
+                        if (stringToChar[j] == '0'){
+                            if (arrayMapChar.find(postfix[0].getTokenString()) != arrayMapChar.end()) {
+                                arrayMapChar[postfix[0].getTokenString()].push_back(0);
+                            }
+                        }
+                    }
+                }else{
+                    if (arrayMapChar.find(postfix[0].getTokenString()) != arrayMapChar.end()) {
+                        arrayMapChar[postfix[0].getTokenString()].push_back(stringToChar[j]);
+                    }
+                }
+            }
+            //If its a single quote we evaluate the char and skip the quotes on either side
+            //We also add the values to the vector where needed
+        }else if (postfix[i].isSingleQuote()){
+            //DO STUFF
+            //If its an operator, evaluate the expression
+        }else if (postfix[i].isLBracket()){
+        }else if (postfix[i].isMinus() || postfix[i].isPlus() ||
+                  postfix[i].isModulo() || postfix[i].isAsterisk() ||
+                  postfix[i].isDivide()) {
+            // Perform the operation based on the operator
+            int operand2 = evalStack.top();
+            evalStack.pop();
+            int operand1 = evalStack.top();
+            evalStack.pop();
+            if (postfix[i].isPlus()) {
+                evalStack.push(operand1 + operand2);
+            }
+            else if (postfix[i].isMinus()) {
+                evalStack.push(operand1 - operand2);
+            }
+            else if (postfix[i].isAsterisk()) {
+                evalStack.push(operand1 * operand2);
+            }
+            else if (postfix[i].isDivide()) {
+                if (operand2 == 0) throw std::runtime_error("Division by zero error!");
+                evalStack.push(operand1 / operand2);
+            }
+        } else if (postfix[i].isAssignmentOperator()){
+            //Need to finish
+            //test example as to how to set the value in our symbol table
+            //searches for the symbol, using
+            //postfix[i].getTokenString() = name of variable
+            //lookUpFunctionFromAddress(callStartAddress) = gets name of function where call was made.
+            //->variable val. get the value from the symbol table object. can set like below.
+            evalStack.pop();
+//            SymbolNode* nodeEval = symbol_table_list.lookupSymbolAtLocation(postfix[0].getTokenString(),lookUpFunctionFromAddress(callStartAddress));
+//            symbol_table_list.setVarVal(nodeEval, evalStack.top());
+//            evalStack.pop();
+//            symbol_table_list.printTable(nodeEval);
+        }
+    }
+}
+
 
 bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
 
@@ -1871,9 +1959,9 @@ void Parser::interpret() {
                 if (currentNode->getToken().isArray()){
                     SymbolNode* arrayNode = symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getVarName(),lookUpFunctionFromAddress(callStartAddress));
                     if (arrayNode->symbolTable.datatype == "char") {
-                        arrayMapChar[currentNode->getToken().getVarName()] = std::vector<char>(std::stoi(arrayNode->symbolTable.datatype_array_size));
+                        arrayMapChar[currentNode->getToken().getVarName()] = std::vector<char>();
                     }else if (arrayNode->symbolTable.datatype == "int"){
-                        arrayMapInt[currentNode->getToken().getVarName()] = std::vector<int>(std::stoi(arrayNode->symbolTable.datatype_array_size));
+                        arrayMapInt[currentNode->getToken().getVarName()] = std::vector<int>();
                     }
                 }
                 callStack.back()++;
@@ -1921,17 +2009,34 @@ void Parser::interpret() {
                             //print out the function call parameters
    //                         std::cout<<"found param for function call: "<<currentNode->getToken().getTokenString()<<std::endl;
 
-                            //set params of function with the correct value matching that param.
-                            //use
-                            //test to see if setting address works correctly.
-                            //symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getTokenString(),lookUpFunctionFromAddress(callStartAddress))->variableVal = 37;
-
-                            //searches the symbol, by sending it the function name of the function called to set the value of the parameter in our function
-                            //to the value of the symboltable value of the param passed in.
-                            //note, if we have a function call that isnt a identifier, then we likely need cases for this
-                            SymbolNode* symbolParam = symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction));
-                            SymbolNode* equalToSymbol = symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getTokenString(),lookUpFunctionFromAddress(callStartAddress));
-                            symbol_table_list.setVarVal(symbolParam,equalToSymbol->variableVal);
+                            //Initialize the variable with a value by using the variable inside the []
+                            if(currentNode->getRight()->getToken().isLBracket()){
+                                SymbolNode* symbolParam = symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction));
+                                //We need the value of the variable inside [] so we look for its node and get its value
+                                SymbolNode* equalToSymbol = symbol_table_list.lookupSymbolAtLocation(currentNode->getRight()->getRight()->getToken().getTokenString(),lookUpFunctionFromAddress(callStartAddress));
+                                int varVal = arrayMapChar.find(currentNode->getToken().getTokenString())->second[equalToSymbol->variableVal];
+                                symbol_table_list.setVarVal(symbolParam,varVal);
+                                //skip the array variable
+                                callStack.back()++;
+                                //skip the l bracket
+                                callStack.back()++;
+                                //skip the inside variable
+                                callStack.back()++;
+                            }else{
+                                //set params of function with the correct value matching that param.
+                                //use
+                                //test to see if setting address works correctly.
+                                //symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getTokenString(),lookUpFunctionFromAddress(callStartAddress))->variableVal = 37;
+                                //searches the symbol, by sending it the function name of the function called to set the value of the parameter in our function
+                                //to the value of the symboltable value of the param passed in.
+                                //note, if we have a function call that isnt a identifier, then we likely need cases for this
+                                SymbolNode *symbolParam = symbol_table_list.lookupSymbolParam(
+                                        lookUpFunctionFromAddress(foundFunction));
+                                SymbolNode *equalToSymbol = symbol_table_list.lookupSymbolAtLocation(
+                                        currentNode->getToken().getTokenString(),
+                                        lookUpFunctionFromAddress(callStartAddress));
+                                symbol_table_list.setVarVal(symbolParam, equalToSymbol->variableVal);
+                            }
 
     //                        std::cout<<"param value set to:"<<symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction))->variableVal<<"VALUE HERE VALUE HERE VALUE HERE"<<std::endl;
 
@@ -1983,7 +2088,12 @@ void Parser::interpret() {
                 //then put them in some container that can operate on the components to set the result in the correct variable in our symbol table
 
                 //call postfixeval to do operations and set value to the variable in the symbol table
-                postFixEval(postFix,callStartAddress);
+                if(arrayMapChar.find(postFix[0].getTokenString()) != arrayMapChar.end()
+                   || postFix[0].isChar()){
+                    postFixEvalChar(postFix, callStartAddress);
+                }else {
+                    postFixEval(postFix, callStartAddress);
+                }
 
                 //increment the call stack
                 callStack.back()++;

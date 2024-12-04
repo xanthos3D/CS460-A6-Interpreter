@@ -2180,23 +2180,143 @@ void Parser::interpret() {
                 std::cout << test << std::endl;
                 callStack.back()++;
 
+                /*
+                 * Hello Team, For Loop is almost done, currently running into issues with For Expression 2
+                 * The way i implemented the code is to just expect the first For Loop  Expression 1
+                 * and execute all three statemnts.
+                 *
+                 * Main issues are looping properly, I think it loops properyl, the error i got was handling the out bounds wrong
+                 * Example:
+                 * BEGIN BLOCK in FOR LOOP skip ADDRESS: 126 blockScope: 3
+                    BEGIN BLOCK in FOR LOOP skip ADDRESS: 141 blockScope: 4
+                    END BLOCK in if skip ADDRESS: 150 blockScope: 3
+                    END BLOCK in if skip ADDRESS: 151 blockScope: 2
+                    BEGIN BLOCK in FOR LOOP skip ADDRESS: 156 blockScope: 3
+                    END BLOCK in if skip ADDRESS: 161 blockScope: 2
+                    END BLOCK in if skip ADDRESS: 162 blockScope: 1
+                    searched for Address: 164 but could not find it in AST
+
+                 I used the assingment part for the first expression,
+                 For the second, it is very similar to the if statemnt but we preform a while loop
+                 the for expression 3 is basically the assignment as well but it doesnt check for a fucntion although i dont
+                 think we need that for this assignment
+                 */
             }else if (statement == "FOR EXPRESSION 1") {
-                // UNFINISHED HERE!
-                //should just store a value into our symbol table
 
-            }else if (statement == "FOR EXPRESSION 2") {
-                // UNFINISHED HERE!
-                //challenging part. my thoughts, we could implement something similiar to the way the callstack works
-                //where we have a vector to keep track of the initial address of the foor loop here at this boolean case.
-                //then keep track of the scope of the for loop similiar to the way i handled the if case, where if expression is true
-                //evaluate until we run out of the for loops scope, then jump back to the for loops address.
-                //and on false we simply skip the for loops scope.
 
-            }else if (statement == "FOR EXPRESSION 3") {
-                // UNFINISHED HERE!
-                //increment the correct variable in the symbol table.
+                /*
+                // Step 1: Initialization (ForExpression 1)
+                std::cout << "FOR LOOP ADDRESS: " << callStack.back() << std::endl;
+                callStack.back()++;
+                currentNode = cst->getNodeAtAddress(callStack.back());
+                std::vector<Token> postFix;
+                while (currentNode->getRight() != nullptr) {
+                    postFix.push_back(currentNode->getToken());
+                    callStack.back()++;
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+                }
+                postFixEval(postFix, callStartAddress); // Perform initialization
 
+                */
+
+                inAssignment++;
+                std::cout << "FOR Expression 1 ADDRESS: " << callStack.back() << std::endl;
+                callStack.back()++;
+                currentNode = cst->getNodeAtAddress(callStack.back());
+                std::vector<Token> postFix;
+
+                while(currentNode->getRight() != nullptr){
+                    statement = currentNode->getToken().getTokenString();
+                    std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+                    int foundFunction = lookUpFunction(currentNode->getToken().getTokenString());
+
+                    if(foundFunction != -1){
+                        callStack.back()++;
+                        callStack.back()++;
+                        currentNode = cst->getNodeAtAddress(callStack.back());
+
+                        while(currentNode->getToken().getTokenString() != ")"){
+                            std::cout<<"found param for function call: "<<currentNode->getToken().getTokenString()<<std::endl;
+                            SymbolNode* symbolParam = symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction));
+                            SymbolNode* equalToSymbol = symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getTokenString(),lookUpFunctionFromAddress(callStartAddress));
+                            symbol_table_list.setVarVal(symbolParam,equalToSymbol->variableVal);
+                            std::cout<<"param value set to:"<<symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction))->variableVal<<"VALUE HERE VALUE HERE VALUE HERE"<<std::endl;
+                            callStack.back()++;
+                            currentNode = cst->getNodeAtAddress(callStack.back());
+
+                        }
+                        callStack.push_back(foundFunction);
+                        interpret();
+                        postFix.push_back(tempToken);
+
+                    }else{
+                        postFix.push_back(currentNode->getToken());
+                    }
+                    callStack.back()++;
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+                }
+                statement = currentNode->getToken().getTokenString();
+                std::cout << "ASSIGNMENT PART ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+
+                postFix.push_back(currentNode->getToken());
+                postFixEval(postFix,callStartAddress);
+                callStack.back()++;
+                inAssignment--;
+
+                // Step 2: Condition (For Expression 2)
+
+
+                int forLoopStart = callStack.back(); // Save the starting point of the FOR loop
+                std::cout << "FOR LOOP ADDRESS: " << callStack.back() << std::endl;
+
+                callStack.back()++;
+                std::cout << "FOR LOOP ADDRESS: " << callStack.back() << std::endl;
+
+                currentNode = cst->getNodeAtAddress(callStack.back());
+                postFix.clear();
+                while (currentNode->getRight() != nullptr) {
+                    postFix.push_back(currentNode->getToken());
+                    callStack.back()++;
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+                }
+
+                while (postFixEvalBool(postFix, forLoopStart)) {
+                    // Step 3: Execute Loop Body
+                    int targetScope = blockScope;
+                    blockScope++;
+                    while (blockScope > targetScope) {
+                        currentNode = cst->getNodeAtAddress(callStack.back());
+                        statement = currentNode->getToken().getTokenString();
+                        if (statement == "BEGIN BLOCK") {
+                            blockScope++;
+                            std::cout << "BEGIN BLOCK in FOR LOOP skip ADDRESS: " << callStack.back() <<" blockScope: " << blockScope << std::endl;
+                        }else if (statement == "END BLOCK") {
+
+                            blockScope--;
+                            std::cout << "END BLOCK in if skip ADDRESS: " << callStack.back() <<" blockScope: " << blockScope << std::endl;
+                        }
+                        callStack.back()++;
+                    }
+
+                    // Step 4: Increment (Expression 3)
+                    callStack.back()++;
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+                    postFix.clear();
+                    while (currentNode->getRight() != nullptr) {
+                        postFix.push_back(currentNode->getToken());
+                        callStack.back()++;
+                        currentNode = cst->getNodeAtAddress(callStack.back());
+                    }
+                    postFixEval(postFix, forLoopStart); // Perform increment
+
+                    callStack.back() = forLoopStart;
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+                }
+
+                callStack.back()++;
+                currentNode = cst->getNodeAtAddress(callStack.back());
             }
+
                 //std::cout << std::endl;
             else if(blockScope <= 0){
                 callStack.pop_back();

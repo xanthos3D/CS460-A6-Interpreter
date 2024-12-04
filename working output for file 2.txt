@@ -1,0 +1,6 @@
+digit = 0, hex_digit in function = f or 102
+in first function call, 
+digit = -1, hex_digit in function = 102
+is 102/f  48 between 52?  False
+is 102/f  97 between 102?  true
+digit = 102 - 97 + 10 = 15

@@ -1774,8 +1774,15 @@ bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
                 std::cout<<" opperator1: ( "<<std::get<0>(operand1)<<" , "<<std::get<1>(operand1)<<" , "<<std::get<2>(operand1)<<" )"<<std::endl;
                 throw;
             }
+            std::cout<<" opperator2: ( "<<std::get<0>(operand2)<<" , "<<std::get<1>(operand2)<<" , "<<std::get<2>(operand2)<<" )"<<std::endl;
+            std::cout<<" opperator1: ( "<<std::get<0>(operand1)<<" , "<<std::get<1>(operand1)<<" , "<<std::get<2>(operand1)<<" )"<<std::endl;
         }
 
+    }
+    if(std::get<1>(evalStack.top())){
+        std::cout<<"bool Expression Returning true"<<std::endl;
+    }else{
+        std::cout<<"bool Expression Returning false"<<std::endl;
     }
 
     return std::get<1>(evalStack.top());
@@ -2274,11 +2281,16 @@ void Parser::interpret() {
 
                 currentNode = cst->getNodeAtAddress(callStack.back());
                 postFix.clear();
+
                 while (currentNode->getRight() != nullptr) {
                     postFix.push_back(currentNode->getToken());
                     callStack.back()++;
                     currentNode = cst->getNodeAtAddress(callStack.back());
                 }
+
+                postFix.push_back(currentNode->getToken());
+                callStack.back()++;
+                currentNode = cst->getNodeAtAddress(callStack.back());
 
                 while (postFixEvalBool(postFix, forLoopStart)) {
                     // Step 3: Execute Loop Body

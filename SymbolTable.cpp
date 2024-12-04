@@ -122,6 +122,7 @@ SymbolNode *SymbolTableList::lookupSymbolAtLocationHelper(SymbolNode* head,const
     //if we hit the end of our symbol table then throw error
     if (head == nullptr){
         std::cout<<"searched for name: "<< name <<"in location: "<< location <<" but it is not present in the table."<<std::endl;
+        return lookupSymbolParam(location);
         throw;
     }
 

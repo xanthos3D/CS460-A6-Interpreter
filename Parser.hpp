@@ -89,10 +89,13 @@ public:
     void addFunction(std::string functionName, int addressLoc);
 
     //function to evaluate a post fix expression of token in a vector
-    void postFixEval(std::vector<Token> postfix,int callStartAddress);
+    void postFixEvalInt(std::vector<Token> postfix,int callStartAddress);
 
     //function to evaluate a post fix expression of token in a vector
     bool postFixEvalBool(std::vector<Token> postfix,int callStartAddress);
+
+    //Function to evaluate a post fix expression (for array of chars)
+    void postFixEvalChar(std::vector<Token> postfix,int callStartAddress);
 
     //interprets the code
     void interpret();
@@ -176,6 +179,9 @@ private:
     //if we add more than the maxSize for this project. Can be implemented if further progress wants to be made.
     std::map<std::string, std::vector<int>/*, int*/> arrayMapInt;
     std::map<std::string, std::vector<char>/*, int*/> arrayMapChar;
+
+    int hexToInt(char hexChar);
+    std::map<char, int> hexMap;
 
 };
 

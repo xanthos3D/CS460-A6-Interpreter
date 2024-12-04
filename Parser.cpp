@@ -1557,7 +1557,7 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
             }else{
                 SymbolNode* variableToDigit = symbol_table_list.lookupSymbolParam(postfix[i].getTokenString());
                 int varToInt = variableToDigit->variableVal;
-                symbol_table_list.printTable(variableToDigit);
+                //symbol_table_list.printTable(variableToDigit);
                 evalStack.push(varToInt);
             }
         }
@@ -1596,7 +1596,7 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
             SymbolNode* nodeEval = symbol_table_list.lookupSymbolAtLocation(postfix[0].getTokenString(),lookUpFunctionFromAddress(callStartAddress));
             symbol_table_list.setVarVal(nodeEval, evalStack.top());
             evalStack.pop();
-            symbol_table_list.printTable(nodeEval);
+            //symbol_table_list.printTable(nodeEval);
 
         }
 
@@ -1628,7 +1628,7 @@ bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
             }else{
                 SymbolNode* variableToDigit = symbol_table_list.lookupSymbolParam(postfix[i].getTokenString());
                 int varToInt = variableToDigit->variableVal;
-                symbol_table_list.printTable(variableToDigit);
+                //symbol_table_list.printTable(variableToDigit);
                 evalStack.push(std::make_tuple(varToInt,false,false));
             }
         }
@@ -1812,6 +1812,8 @@ void Parser::interpret() {
         std::cout << "function Address is: " << callStack.back() << std::endl;
     }
 
+    
+
     //we want to loop until we hit a return, or fall out of scope. that will happen when we pop off the current callstack.back()
     while (callStackScope == callStack.size()){
 
@@ -1824,6 +1826,8 @@ void Parser::interpret() {
             //for testing purposes to see what token we are looking at.
             std::string statement = currentNode->getToken().getTokenString();
 
+            
+
             //if we find a begin block want to increase our blockScope by one
             if (statement == "BEGIN BLOCK") {
 
@@ -1831,18 +1835,33 @@ void Parser::interpret() {
                 std::cout << "BEGIN BLOCK ADDRESS: " << callStack.back() <<" statement: "<<statement<<" blockScope: " << blockScope << std::endl;
                 callStack.back()++;
 
-                //like wise if we find a end block then we de increment the blockScope
+            //like wise if we find a end block then we de increment the blockScope
             }else if (statement == "END BLOCK") {
 
                 blockScope--;
                 std::cout << "END BLOCK ADDRESS: " << callStack.back() <<" statement: "<<statement<<" blockScope: " << blockScope << std::endl;
+                std::cout<<"forLoopStart: "<<forLoopStart<<" forLoopScope: "<<forLoopScope<<" forLoopCallLoc: "<<forLoopCallLoc<<std::endl;
+                
+                // case to see if we fallout of scope. this case usually happens when the function doesn't have a return call.
                 if(blockScope == 0){
+                    std::cout<<"exiting runtime"<<std::endl;
                     callStack.pop_back();
-                }
-                else{
+                // otherwise we want to continue as normal
+                }else{
                     callStack.back()++;
                 }
-                //for a declaration, just keep moving?
+
+                //however if we are in a for loop, aka 
+                //forLoopStart is not -1 so it has a valid memory location to jump to when the loop reached the end of its scope
+                //and the block scope is equal to the forloops scope, meaning we have escaped the bound of the loops scope
+                //and we are in the correct interp call as the forloopcall needs to mats the start call address.
+                if(forLoopStart > 0 && blockScope == forLoopScope && forLoopCallLoc == callStartAddress){
+                    std::cout<<"end of for loop, jumping back to for loop start position"<<std::endl;
+                    callStack.back() = forLoopStart;
+
+                }
+
+            //for a declaration, just keep moving?
             }else if (statement == "DECLARATION") {
 
                 std::cout << "DECLARATION ADDRESS: " << callStack.back() << std::endl;
@@ -2075,6 +2094,11 @@ void Parser::interpret() {
 
                 //handle else case
             }else if (statement == "ELSE") {
+                // temp just ot skip the else for now until its implemented.
+                statement = currentNode->getToken().getTokenString();
+                std::cout << "ELSE ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
+
+                callStack.back()++;
                 // UNFINISHED HERE!
                 //suggestion, the above if case handles when to skip the scope of a if statement. we could add some way of tracking if
                 //we are checking if cases with this case reseting that variable? may need to reset that value if other cases are ether incase if is by its self.
@@ -2083,9 +2107,6 @@ void Parser::interpret() {
 
                 //handle return case.
             }else if (statement == "RETURN") {
-                // UNFINISHED HERE!
-                //we need to update the symbol table values when we return. and ensure they go to the correct places
-
                 //get the next token which should ve the symbol or value we are returning
                 callStack.back()++;
                 currentNode = cst->getNodeAtAddress(callStack.back());
@@ -2111,7 +2132,7 @@ void Parser::interpret() {
                 callStack.pop_back();
                 std::cout<<"REACHED RETURN CALL."<<std::endl;
 
-                //handles printing of output once we are finished.
+            //handles printing of output once we are finished.
             }else if (statement == "PRINTF") {
                 callStack.back()++;
                 currentNode = cst->getNodeAtAddress(callStack.back());
@@ -2187,44 +2208,8 @@ void Parser::interpret() {
                 std::cout << test << std::endl;
                 callStack.back()++;
 
-                /*
-                 * Hello Team, For Loop is almost done, currently running into issues with For Expression 2
-                 * The way i implemented the code is to just expect the first For Loop  Expression 1
-                 * and execute all three statemnts.
-                 *
-                 * Main issues are looping properly, I think it loops properyl, the error i got was handling the out bounds wrong
-                 * Example:
-                 * BEGIN BLOCK in FOR LOOP skip ADDRESS: 126 blockScope: 3
-                    BEGIN BLOCK in FOR LOOP skip ADDRESS: 141 blockScope: 4
-                    END BLOCK in if skip ADDRESS: 150 blockScope: 3
-                    END BLOCK in if skip ADDRESS: 151 blockScope: 2
-                    BEGIN BLOCK in FOR LOOP skip ADDRESS: 156 blockScope: 3
-                    END BLOCK in if skip ADDRESS: 161 blockScope: 2
-                    END BLOCK in if skip ADDRESS: 162 blockScope: 1
-                    searched for Address: 164 but could not find it in AST
-
-                 I used the assingment part for the first expression,
-                 For the second, it is very similar to the if statemnt but we preform a while loop
-                 the for expression 3 is basically the assignment as well but it doesnt check for a fucntion although i dont
-                 think we need that for this assignment
-                 */
-            }else if (statement == "FOR EXPRESSION 1") {
-
-
-                /*
-                // Step 1: Initialization (ForExpression 1)
-                std::cout << "FOR LOOP ADDRESS: " << callStack.back() << std::endl;
-                callStack.back()++;
-                currentNode = cst->getNodeAtAddress(callStack.back());
-                std::vector<Token> postFix;
-                while (currentNode->getRight() != nullptr) {
-                    postFix.push_back(currentNode->getToken());
-                    callStack.back()++;
-                    currentNode = cst->getNodeAtAddress(callStack.back());
-                }
-                postFixEval(postFix, callStartAddress); // Perform initialization
-
-                */
+            // for the for loop we need to do the same logic as our assign case for parts 1 and 3.
+            }else if (statement == "FOR EXPRESSION 1" || statement == "FOR EXPRESSION 3") {
 
                 inAssignment++;
                 std::cout << "FOR Expression 1 ADDRESS: " << callStack.back() << std::endl;
@@ -2270,17 +2255,24 @@ void Parser::interpret() {
                 callStack.back()++;
                 inAssignment--;
 
-                // Step 2: Condition (For Expression 2)
+                //currentNode = cst->getNodeAtAddress(callStack.back());
 
+            // bool expression with some extra steps.
+            }else if (statement == "FOR EXPRESSION 2" || statement == "WHILE") {
 
-                int forLoopStart = callStack.back(); // Save the starting point of the FOR loop
+                // Save the starting point of the FOR loop
+                forLoopStart = callStack.back(); 
                 std::cout << "FOR LOOP ADDRESS: " << callStack.back() << std::endl;
+
+                //important variable to tell where the for loop was called in memory
+                int forLoopOriginalAdress = callStack.back();
 
                 callStack.back()++;
                 std::cout << "FOR LOOP ADDRESS: " << callStack.back() << std::endl;
-
                 currentNode = cst->getNodeAtAddress(callStack.back());
-                postFix.clear();
+                
+                //make vector to fill our tokens for our boolean operation
+                std::vector<Token> postFix;
 
                 while (currentNode->getRight() != nullptr) {
                     postFix.push_back(currentNode->getToken());
@@ -2292,106 +2284,135 @@ void Parser::interpret() {
                 callStack.back()++;
                 currentNode = cst->getNodeAtAddress(callStack.back());
 
-                while (postFixEvalBool(postFix, forLoopStart)) {
-                    // Step 3: Execute Loop Body
+                //if we find the expression to be true, then we want to loop
+                if(postFixEvalBool(postFix, forLoopStart)){
+
+                    std::cout << "for expression true"<< std::endl;
+                    
+                    //set the forloopstart, to the address right on the FOR EXPRESSION 2 node
+                    forLoopStart = forLoopOriginalAdress;
+
+                    //set the loops scope similiar to how we did with the if statement
+                    forLoopScope = blockScope;
+
+                    //set the forloop call loc to the starting address of the function that called it.
+                    //that way the loop doesnt die if it calls a function.
+                    forLoopCallLoc  = callStartAddress;
+
+                //otherwise we want to skip the for loops scope.
+                }else{
+                    // reset the loop variable since we are now out of the loop
+                    forLoopStart = -1;
+                    forLoopScope = -1;
+                    forLoopCallLoc  = -1;
+
+                    //then same logic as our if statement when skipping the block
+                    std::cout << "bool expression in loop  false"<< std::endl;
+
+                    //important! the token we would be on if we didnt increment by one is a begin block
+                    //this is bad because it messes up the skip function if bool is false.
+                    //before we loop increment by one to simulate eating the begin block
+                    callStack.back()++;
+
+                    //set the temp scope variable to tell when we should stop ignoring code in the scope of the if statement.
                     int targetScope = blockScope;
+
+                    //increase the scope by 1 to resemble eating the open paren.
                     blockScope++;
-                    while (blockScope > targetScope) {
+
+                    //std::cout << "blockScope: "<<blockScope<<" targetScope: "<<targetScope<< std::endl;
+
+                    //while the blockScope is greater than the targetScope
+                    while(blockScope > targetScope){
+
+                        // upodate node contents
                         currentNode = cst->getNodeAtAddress(callStack.back());
                         statement = currentNode->getToken().getTokenString();
+
+                        //mock begin case. functions like the begin block case but specially tailored for skipping things in this scope
                         if (statement == "BEGIN BLOCK") {
+
                             blockScope++;
-                            std::cout << "BEGIN BLOCK in FOR LOOP skip ADDRESS: " << callStack.back() <<" blockScope: " << blockScope << std::endl;
+                            std::cout << "BEGIN BLOCK in if skip ADDRESS: " << callStack.back() <<"blockScope: " << blockScope << std::endl;
+
+                            //mock end case. functions like the begin block case but specially tailored for skipping things in this scope
                         }else if (statement == "END BLOCK") {
 
                             blockScope--;
                             std::cout << "END BLOCK in if skip ADDRESS: " << callStack.back() <<" blockScope: " << blockScope << std::endl;
                         }
+
+                        //move past the end block
                         callStack.back()++;
                     }
-
-                    // Step 4: Increment (Expression 3)
-                    callStack.back()++;
-                    currentNode = cst->getNodeAtAddress(callStack.back());
-                    postFix.clear();
-                    while (currentNode->getRight() != nullptr) {
-                        postFix.push_back(currentNode->getToken());
-                        callStack.back()++;
-                        currentNode = cst->getNodeAtAddress(callStack.back());
-                    }
-                    postFixEval(postFix, forLoopStart); // Perform increment
-
-                    callStack.back() = forLoopStart;
-                    currentNode = cst->getNodeAtAddress(callStack.back());
                 }
 
-                callStack.back()++;
+                //move the token forward.
                 currentNode = cst->getNodeAtAddress(callStack.back());
-            }
+                statement = currentNode->getToken().getTokenString();
+                std::cout <<"statement: "<<statement<<std::endl;
+                std::cout<<"current token: "<<currentNode->getToken().getTokenString()<<" blockScope: "<<blockScope<<std::endl;
 
-                //std::cout << std::endl;
-            else if(blockScope <= 0){
-                callStack.pop_back();
+            }else if(statement == "CALL"){
+            //if we find a call move one forward
+            callStack.back()++;
+            currentNode = cst->getNodeAtAddress(callStack.back());
+
+            // same logic as when we called our function in assignment. 
+            //if we find a function call in a assignment, then we need to perform some recursion
+            //call our look up function to find out if the given token is a function in our function list
+            int foundFunction = lookUpFunction(currentNode->getToken().getTokenString());
+
+            //if the value does not return -1 then we have found a function call.
+            if(foundFunction != -1){
+
+                //move past the token that resembles the function call
+                callStack.back()++;
+                //then move past the token that resembles the open paren
+                callStack.back()++;
+
+                //grab next node that is the first function call parameter.
+                currentNode = cst->getNodeAtAddress(callStack.back());
+
+                //then loop through the params, so long as we dont get a close paren
+                while(currentNode->getToken().getTokenString() != ")"){
+
+                    //print out the function call parameters
+                    std::cout<<"found param for function call: "<<currentNode->getToken().getTokenString()<<std::endl;
+
+                            
+                    SymbolNode* symbolParam = symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction));
+                    SymbolNode* equalToSymbol = symbol_table_list.lookupSymbolAtLocation(currentNode->getToken().getTokenString(),lookUpFunctionFromAddress(callStartAddress));
+                    symbol_table_list.setVarVal(symbolParam,equalToSymbol->variableVal);
+
+                    std::cout<<"param value set to:"<<symbol_table_list.lookupSymbolParam(lookUpFunctionFromAddress(foundFunction))->variableVal<<"VALUE HERE VALUE HERE VALUE HERE"<<std::endl;
+
+                    //move to the next element in memory
+                    callStack.back()++;
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+
+                    //set the paramlist to the variable. if a variable is a param then lookup that variable
+                    //and set it to the param at this position.
+                }
+
+                //so we want to push the function memory address to the top of the callstack.
+                callStack.push_back(foundFunction);
+
+                //then we can recursively call interpret to interpret the function call.
+                interpret();
+                //after the function call we are able to resume at the same place in memory regardless of where the funtion is called.
+                //in a assignment.
+
+                //store the result of the function call in a token (done in RETURN)
+                //add that token to the vector
             }
+            callStack.back()++;
+    }
+        
+
         }
     }
 }
 
 
-
-
-/*void Parser::performArithmetic(CSTNode* root) {
-    if (root == nullptr) {
-        //return;
-        exit(1);
-    }
-
-    std::stack<int> arithmeticStack;
-
-    evalNode(root, arithmeticStack);
-
-    stack.push(arithmeticStack.top());
-}
-
-void Parser::evalNode(CSTNode* node, std::stack<int>& evalStack){
-    if (node == nullptr) return;
-
-    //forgot the
-    //If it's an operand, push its value to the stack
-    if (node->getToken().isIdentifier() || node->getToken().isInt() || node->getToken().isDouble()) {
-        if (node->getToken().isInt() || node->getToken().isDouble()) {
-            int value = std::stoi(node->getToken().getTokenString());
-            evalStack.push(value);
-        }else{
-
-        }
-    }
-        //If it's an operator, evaluate the expression
-    else if (node->getToken().isMinus() || node->getToken().isPlus() ||
-             node->getToken().isModulo() || node->getToken().isAsterisk() ||
-             node->getToken().isDivide()) {
-
-        // Perform the operation based on the operator
-        int operand2 = evalStack.top();
-        evalStack.pop();
-        int operand1 = evalStack.top();
-        evalStack.pop();
-
-        if (node->getToken().isPlus()) {
-            evalStack.push(operand1 + operand2);
-        }
-        else if (node->getToken().isMinus()) {
-            evalStack.push(operand1 - operand2);
-        }
-        else if (node->getToken().isAsterisk()) {
-            evalStack.push(operand1 * operand2);
-        }
-        else if (node->getToken().isDivide()) {
-            if (operand2 == 0) throw std::runtime_error("Division by zero error!");
-            evalStack.push(operand1 / operand2);
-        }
-    } else if (node->getToken().isAssignmentOperator()){
-        //Need to finish
-    }
-}*/
 

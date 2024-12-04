@@ -177,6 +177,11 @@ private:
     std::map<std::string, std::vector<int>/*, int*/> arrayMapInt;
     std::map<std::string, std::vector<char>/*, int*/> arrayMapChar;
 
+    //
+    int forLoopStart = -1;
+    int forLoopScope = -1;
+    int forLoopCallLoc = -1;
+
 };
 
 

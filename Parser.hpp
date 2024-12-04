@@ -117,6 +117,7 @@ private:
     bool inImportantExp = false;
     //used as bool; if inAssignment >= 0 we are in ASSIGNMENT
     int inAssignment = 0;
+    bool _else = false;
 
     //vector passed in on declaration
     std::vector<Token> tokenVector;

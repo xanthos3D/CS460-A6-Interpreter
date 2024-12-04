@@ -1633,7 +1633,7 @@ bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
             }
         }
             //If it's an operator, evaluate the expression
-        else if (postfix[i].isBoolE() ||
+        else if (postfix[i].isBoolE() || postfix[i].isModulo() ||
                  postfix[i].isBoolNE() || postfix[i].isBoolGT() ||
                  postfix[i].isBoolLT()|| postfix[i].isBoolGT() ||
                  postfix[i].isBoolGTE() || postfix[i].isBoolLTE()||
@@ -1728,6 +1728,9 @@ bool Parser::postFixEvalBool(std::vector<Token> postfix,int callStartAddress){
                     if (std::get<0>(operand2) == 0) throw std::runtime_error("Division by zero error IN bool!");
 
                     int results = (std::get<0>(operand1) / std::get<0>(operand2));
+                    evalStack.push(std::make_tuple(results,false,false));
+                }else if (postfix[i].isModulo()) {
+                    int results = (std::get<0>(operand1) % std::get<0>(operand2));
                     evalStack.push(std::make_tuple(results,false,false));
                 }
 
@@ -2042,6 +2045,7 @@ void Parser::interpret() {
                 if(boolExpression == true){
 
                     std::cout << "bool expression true"<< std::endl;
+                    std::cout << "processing If statement..." << std::endl;
 
                     //else if its false, then skip that block, using the block scoping to skip it
                 }else{
@@ -2085,27 +2089,58 @@ void Parser::interpret() {
                         callStack.back()++;
                     }
                 }
-
                 //move the token forward.
                 currentNode = cst->getNodeAtAddress(callStack.back());
                 statement = currentNode->getToken().getTokenString();
-                std::cout <<"statement: "<<statement<<std::endl;
-                std::cout<<"current token: "<<currentNode->getToken().getTokenString()<<" blockScope: "<<blockScope<<std::endl;
+                //set variable to true only if next statement is an else statement
+                if (statement == "ELSE" && !boolExpression) {
+                    _else = true;
+                }
+                std::cout << "statement: " << statement << std::endl;
+                std::cout << "current token: " << currentNode->getToken().getTokenString() << " blockScope: "
+                          << blockScope << std::endl;
 
-                //handle else case
-            }else if (statement == "ELSE") {
-                // temp just ot skip the else for now until its implemented.
-                statement = currentNode->getToken().getTokenString();
-                std::cout << "ELSE ADDRESS: " << callStack.back() <<" statement: "<<statement<<std::endl;
 
+
+                //Preform only if the Statement is else and if the boolexpression prior was false
+            } else if (statement == "ELSE" && _else) {
+                std::cout << "processing else statement..." << std::endl;
+                _else = false;      // to avoid future ambiguity set this false
                 callStack.back()++;
-                // UNFINISHED HERE!
-                //suggestion, the above if case handles when to skip the scope of a if statement. we could add some way of tracking if
-                //we are checking if cases with this case reseting that variable? may need to reset that value if other cases are ether incase if is by its self.
-                //also in this case, we need to check if there is a if after this else. if thats the case, then just skip this case and have the
-                //if land into our if case above
 
-                //handle return case.
+                //SInce the boolexpression was true we skip anything inside the else statement
+            } else if (statement == "ELSE" && !_else) {
+                callStack.back()++;
+                std::cout << "Skipping else statement..." << std::endl;
+                callStack.back()++;
+                int targetScope = blockScope;
+                blockScope++;
+                //while the blockScope is greater than the targetScope
+                while (blockScope > targetScope) {
+
+                    // upodate node contents
+                    currentNode = cst->getNodeAtAddress(callStack.back());
+                    statement = currentNode->getToken().getTokenString();
+
+                    //mock begin case. functions like the begin block case but specially tailored for skipping things in this scope
+                    if (statement == "BEGIN BLOCK") {
+
+                        blockScope++;
+                        std::cout << "BEGIN BLOCK in if skip ADDRESS: " << callStack.back() << "blockScope: "
+                                  << blockScope << std::endl;
+
+                        //mock end case. functions like the begin block case but specially tailored for skipping things in this scope
+                    } else if (statement == "END BLOCK") {
+
+                        blockScope--;
+                        std::cout << "END BLOCK in if skip ADDRESS: " << callStack.back() << " blockScope: "
+                                  << blockScope << std::endl;
+                    }
+
+                    //move past the end block
+                    callStack.back()++;
+                }
+
             }else if (statement == "RETURN") {
                 //get the next token which should ve the symbol or value we are returning
                 callStack.back()++;

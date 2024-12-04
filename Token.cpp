@@ -176,149 +176,149 @@ std::string Token::print() {
     if (isEOF()) {
 
     }else{
-        std::cout<<std::endl;
-        std::cout<< "Token type: ";
+        //std::cout<<std::endl;
+        //std::cout<< "Token type: ";
         output+= "Token type: ";
 
         if(isIdentifier()){
-            std::cout<< "IDENTIFIER" <<std::endl;
-            std::cout<<"Token:      "<<_tokenString<<std::endl;
+            //std::cout<< "IDENTIFIER" <<std::endl;
+            //std::cout<<"Token:      "<<_tokenString<<std::endl;
 
             output+= "IDENTIFIER\n";
             output+= "Token:      ";
             output+= _tokenString;
             output+= "\n";
         }else if(isDoubleQuote()){
-            std::cout<< "DOUBLE_QUOTE" <<std::endl;
-            std::cout<<"Token:      "<<"\""<<std::endl;
+            //std::cout<< "DOUBLE_QUOTE" <<std::endl;
+            //std::cout<<"Token:      "<<"\""<<std::endl;
 
             output+= "DOUBLE_QUOTE\n";
             output+= "Token:      ";
             output+= "\"";
             output+= "\n";
         }else if(isSingleQuote()){
-            std::cout<< "SINGLE_QUOTE" <<std::endl;
-            std::cout<<"Token:      "<<"'"<<std::endl;
+            //std::cout<< "SINGLE_QUOTE" <<std::endl;
+            //std::cout<<"Token:      "<<"'"<<std::endl;
 
             output+= "SINGLE_QUOTE\n";
             output+= "Token:      ";
             output+= "'";
             output+= "\n";
         }else if(isSemicolon()){
-            std::cout<< "SEMICOLON" <<std::endl;
-            std::cout<<"Token:      "<<";"<<std::endl;
+            //std::cout<< "SEMICOLON" <<std::endl;
+            //std::cout<<"Token:      "<<";"<<std::endl;
 
             output+= "SEMICOLON\n";
             output+= "Token:      ";
             output+= ";";
             output+= "\n";
         }else if(isComma()){
-            std::cout<< "COMMA" <<std::endl;
-            std::cout<<"Token:      "<<","<<std::endl;
+            //std::cout<< "COMMA" <<std::endl;
+            //std::cout<<"Token:      "<<","<<std::endl;
 
             output+= "COMMA\n";
             output+= "Token:      ";
             output+= ",";
             output+= "\n";
         }else if(isLParen()){
-            std::cout<< "LEFT_PARENTHESIS" <<std::endl;
-            std::cout<<"Token:      "<<"("<<std::endl;
+           // std::cout<< "LEFT_PARENTHESIS" <<std::endl;
+           // std::cout<<"Token:      "<<"("<<std::endl;
 
             output+= "LEFT_PARENTHESIS\n";
             output+= "Token:      ";
             output+= "(";
             output+= "\n";
         }else if(isRParen()){
-            std::cout<< "RIGHT_PARENTHESIS" <<std::endl;
-            std::cout<<"Token:      "<<")"<<std::endl;
+           // std::cout<< "RIGHT_PARENTHESIS" <<std::endl;
+           // std::cout<<"Token:      "<<")"<<std::endl;
 
             output+= "RIGHT_PARENTHESIS\n";
             output+= "Token:      ";
             output+= ")";
             output+= "\n";
         }else if(isLBrace()){
-            std::cout<< "LEFT_BRACE" <<std::endl;
-            std::cout<<"Token:      "<<"{"<<std::endl;
+          //  std::cout<< "LEFT_BRACE" <<std::endl;
+          //  std::cout<<"Token:      "<<"{"<<std::endl;
 
             output+= "LEFT_BRACE\n";
             output+= "Token:      ";
             output+= "{";
             output+= "\n";
         }else if(isRBrace()){
-            std::cout<< "RIGHT_BRACE" <<std::endl;
-            std::cout<<"Token:      "<<"}"<<std::endl;
+         //   std::cout<< "RIGHT_BRACE" <<std::endl;
+         //   std::cout<<"Token:      "<<"}"<<std::endl;
 
             output+= "Right_BRACE\n";
             output+= "Token:      ";
             output+= "}";
             output+= "\n";
         }else if(isLBracket()){
-            std::cout<< "LEFT_BRACKET" <<std::endl;
-            std::cout<<"Token:      "<<"["<<std::endl;
+         //   std::cout<< "LEFT_BRACKET" <<std::endl;
+         //   std::cout<<"Token:      "<<"["<<std::endl;
 
             output+= "LEFT_BRACKET\n";
             output+= "Token:      ";
             output+= "[";
             output+= "\n";
         }else if(isRBracket()){
-            std::cout<< "RIGHT_BRACKET" <<std::endl;
-            std::cout<<"Token:      "<<"]"<<std::endl;
+        //    std::cout<< "RIGHT_BRACKET" <<std::endl;
+        //    std::cout<<"Token:      "<<"]"<<std::endl;
 
             output+= "RIGHT_BRACKET\n";
             output+= "Token:      ";
             output+= "]";
             output+= "\n";
         }else if(isAssignmentOperator()){
-            std::cout<< "ASSIGNMENT_OPERATOR" <<std::endl;
-            std::cout<<"Token:      "<<"="<<std::endl;
+         //   std::cout<< "ASSIGNMENT_OPERATOR" <<std::endl;
+         //   std::cout<<"Token:      "<<"="<<std::endl;
 
             output+= "ASSIGNMENT_OPERATOR\n";
             output+= "Token:      ";
             output+= "=";
             output+= "\n";
         }else if(isModulo()){
-            std::cout<< "MODULUS" <<std::endl;
-            std::cout<<"Token:      "<<"%"<<std::endl;
+        //    std::cout<< "MODULUS" <<std::endl;
+        //    std::cout<<"Token:      "<<"%"<<std::endl;
 
             output+= "MODULUS\n";
             output+= "Token:      ";
             output+= "%";
             output+= "\n";
         }else if(isPlus()){
-            std::cout<< "PLUS" <<std::endl;
-            std::cout<<"Token:      "<<"+"<<std::endl;
+        //    std::cout<< "PLUS" <<std::endl;
+        //    std::cout<<"Token:      "<<"+"<<std::endl;
 
             output+= "PLUS\n";
             output+= "Token:      ";
             output+= "+";
             output+= "\n";
         }else if(isMinus()){
-            std::cout<< "MINUS" <<std::endl;
-            std::cout<<"Token:      "<<"-"<<std::endl;
+         //   std::cout<< "MINUS" <<std::endl;
+         //   std::cout<<"Token:      "<<"-"<<std::endl;
 
             output+= "MINUS\n";
             output+= "Token:      ";
             output+= "-";
             output+= "\n";
         }else if(isAsterisk()){
-            std::cout<< "ASTERISK" <<std::endl;
-            std::cout<<"Token:      "<<"*"<<std::endl;
+        //    std::cout<< "ASTERISK" <<std::endl;
+        //    std::cout<<"Token:      "<<"*"<<std::endl;
 
             output+= "ASTERISK\n";
             output+= "Token:      ";
             output+= "*";
             output+= "\n";
         }else if(isDivide()){
-            std::cout<< "DIVISION" <<std::endl;
-            std::cout<<"Token:      "<<"/"<<std::endl;
+         //   std::cout<< "DIVISION" <<std::endl;
+         //   std::cout<<"Token:      "<<"/"<<std::endl;
 
             output+= "DIVISION\n";
             output+= "Token:      ";
             output+= "/";
             output+= "\n";
         }else if(isCarot()){
-            std::cout<< "CARET" <<std::endl;
-            std::cout<<"Token:      "<<"^"<<std::endl;
+        //    std::cout<< "CARET" <<std::endl;
+        //    std::cout<<"Token:      "<<"^"<<std::endl;
 
             output+= "CARET\n";
             output+= "Token:      ";
@@ -326,8 +326,8 @@ std::string Token::print() {
             output+= "\n";
 
         }else if(isInt()){
-            std::cout<< "INTEGER" <<std::endl;
-            std::cout<<"Token:      "<<_tokenString<<std::endl;
+         //   std::cout<< "INTEGER" <<std::endl;
+        //    std::cout<<"Token:      "<<_tokenString<<std::endl;
 
             output+= "INTEGER\n";
             output+= "Token:      ";
@@ -335,122 +335,122 @@ std::string Token::print() {
             output+= "\n";
 
         }else if(isDouble()){
-            std::cout<< "DOUBLE" <<std::endl;
-            std::cout<<"Token:      "<<_tokenString<<std::endl;
+         //   std::cout<< "DOUBLE" <<std::endl;
+        //    std::cout<<"Token:      "<<_tokenString<<std::endl;
 
             output+= "DOUBLE\n";
             output+= "Token:      ";
             output+= _tokenString;
             output+= "\n";
         }else if(isChar()){
-            std::cout<< "CHAR" <<std::endl;
-            std::cout<<"Token:      "<<_tokenString<<std::endl;
+        //    std::cout<< "CHAR" <<std::endl;
+        //    std::cout<<"Token:      "<<_tokenString<<std::endl;
 
             output+= "CHAR\n";
             output+= "Token:      ";
             output+= _tokenString;
             output+= "\n";
         }else if(isEscChar()){
-            std::cout<< "ESC CHAR" <<std::endl;
-            std::cout<<"Token:      "<<_tokenString<<std::endl;
+        //    std::cout<< "ESC CHAR" <<std::endl;
+        //    std::cout<<"Token:      "<<_tokenString<<std::endl;
 
             output+= "ESC CHAR\n";
             output+= "Token:      ";
             output+= _tokenString;
             output+= "\n";
         }else if(isString()){
-            std::cout<< "STRING" <<std::endl;
-            std::cout<<"Token:      "<<_tokenString<<std::endl;
+         //   std::cout<< "STRING" <<std::endl;
+        //    std::cout<<"Token:      "<<_tokenString<<std::endl;
 
             output+= "STRING\n";
             output+= "Token:      ";
             output+= _tokenString;
             output+= "\n";
         }else if(isBoolE()){
-            std::cout<< "BOOLEAN_EQUAL" <<std::endl;
-            std::cout<<"Token:      "<<_tokenString<<std::endl;
+        //    std::cout<< "BOOLEAN_EQUAL" <<std::endl;
+        //    std::cout<<"Token:      "<<_tokenString<<std::endl;
 
             output+= "BOOLEAN_EQUAL\n";
             output+= "Token:      ";
             output+= "==";
             output+= "\n";
         }else if(isBoolNot()){
-            std::cout<< "BOOLEAN_NOT" <<std::endl;
-            std::cout<<"Token:      "<<"!"<<std::endl;
+        //    std::cout<< "BOOLEAN_NOT" <<std::endl;
+        //    std::cout<<"Token:      "<<"!"<<std::endl;
 
             output+= "BOOLEAN_NOT\n";
             output+= "Token:      ";
             output+= "!";
             output+= "\n";
         }else if(isBoolNE()){
-            std::cout<< "BOOLEAN_NOT_EQUAL" <<std::endl;
-            std::cout<<"Token:      "<<"!="<<std::endl;
+        //    std::cout<< "BOOLEAN_NOT_EQUAL" <<std::endl;
+        //    std::cout<<"Token:      "<<"!="<<std::endl;
 
             output+= "BOOLEAN_NOT_EQUAL\n";
             output+= "Token:      ";
             output+= "!=";
             output+= "\n";
         }else if(isBoolGT()){
-            std::cout<< "BOOLEAN_GREATER_THAN" <<std::endl;
-            std::cout<<"Token:      "<<">"<<std::endl;
+        //    std::cout<< "BOOLEAN_GREATER_THAN" <<std::endl;
+        //    std::cout<<"Token:      "<<">"<<std::endl;
 
             output+= "BOOLEAN_GREATER_THAN\n";
             output+= "Token:      ";
             output+= ">";
             output+= "\n";
         }else if(isBoolLT()){
-            std::cout<< "BOOLEAN_LESS_THAN" <<std::endl;
-            std::cout<<"Token:      "<<"<"<<std::endl;
+         //   std::cout<< "BOOLEAN_LESS_THAN" <<std::endl;
+         //   std::cout<<"Token:      "<<"<"<<std::endl;
 
             output+= "BOOLEAN_LESS_THAN\n";
             output+= "Token:      ";
             output+= "<";
             output+= "\n";
         }else if(isBoolGTE()){
-            std::cout<< "BOOLEAN_GREATER_THAN_OR EQUAL" <<std::endl;
-            std::cout<<"Token:      "<<">="<<std::endl;
+        //    std::cout<< "BOOLEAN_GREATER_THAN_OR EQUAL" <<std::endl;
+        //    std::cout<<"Token:      "<<">="<<std::endl;
 
             output+= "BOOLEAN_GREATER_THAN_OR EQUAL\n";
             output+= "Token:      ";
             output+= ">=";
             output+= "\n";
         }else if(isBoolLTE()){
-            std::cout<< "BOOLEAN_LESS_THAN_OR EQUAL" <<std::endl;
-            std::cout<<"Token:      "<<"<="<<std::endl;
+         //   std::cout<< "BOOLEAN_LESS_THAN_OR EQUAL" <<std::endl;
+        //    std::cout<<"Token:      "<<"<="<<std::endl;
 
             output+= "BOOLEAN_LESS_THAN_OR EQUAL\n";
             output+= "Token:      ";
             output+= "<=";
             output+= "\n";
         }else if(isBoolAnd()){
-            std::cout<< "BOOLEAN_AND" <<std::endl;
-            std::cout<<"Token:      "<<"&&"<<std::endl;
+         //   std::cout<< "BOOLEAN_AND" <<std::endl;
+         //   std::cout<<"Token:      "<<"&&"<<std::endl;
 
             output+= "BOOLEAN_AND\n";
             output+= "Token:      ";
             output+= "&&";
             output+= "\n";
         }else if(isBoolOr()){
-            std::cout<< "BOOLEAN_OR" <<std::endl;
-            std::cout<<"Token:      "<<"||"<<std::endl;
+        //    std::cout<< "BOOLEAN_OR" <<std::endl;
+        //    std::cout<<"Token:      "<<"||"<<std::endl;
 
             output+= "BOOLEAN_OR\n";
             output+= "Token:      ";
             output+= "||";
             output+= "\n";
         }else if(isBoolTrue()){
-            std::cout<< "BOOLEAN_TRUE" <<std::endl;
-            std::cout<<"Token:      "<<"True"<<std::endl;
+        //    std::cout<< "BOOLEAN_TRUE" <<std::endl;
+         //   std::cout<<"Token:      "<<"True"<<std::endl;
 
             output+= "BOOLEAN_GREATER_THAN_OR EQUAL\n";
             output+= "Token:      ";
             output+= ">=";
             output+= "\n";
         }else if(isBoolFalse()){
-            std::cout<< "BOOLEAN_FALSE" <<std::endl;
-            std::cout<<"Token:      "<<"False"<<std::endl;
+         //   std::cout<< "BOOLEAN_FALSE" <<std::endl;
+         //   std::cout<<"Token:      "<<"False"<<std::endl;
         }else{
-            std::cout << "Token::print -- unknown token.\n" << std::endl;
+         //   std::cout << "Token::print -- unknown token.\n" << std::endl;
             exit(3);
         }
         output+= "\n";

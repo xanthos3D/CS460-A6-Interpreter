@@ -121,8 +121,8 @@ SymbolNode *SymbolTableList::lookupSymbolAtLocationHelper(SymbolNode* head,const
 
     //if we hit the end of our symbol table then throw error
     if (head == nullptr){
-        std::cout<<"searched for name: "<< name <<"in location: "<< location <<" but it is not present in the table."<<std::endl;
-        std::cout<<"searching for param as a paramlist symbol? "<<std::endl;
+ //       std::cout<<"searched for name: "<< name <<"in location: "<< location <<" but it is not present in the table."<<std::endl;
+   //     std::cout<<"searching for param as a paramlist symbol? "<<std::endl;
         return lookupSymbolParam(name);
         throw;
     }
@@ -154,12 +154,12 @@ SymbolNode *SymbolTableList::lookupSymbolParamHelper(SymbolNode* head,const std:
     //if we hit the end of our symbol table then throw error
     if (head == nullptr){
         std::cout<<"searched for param: "<< functionName <<" but it is not present in the table."<<std::endl;
-        throw;
+ //       throw;
     }
 
     //check if function name is set
     if(functionName == head->symbolTable.identifier_name && head->symbolTable.isParamList == true){
-        std::cout<<"found param: "<<head->symbolTable.identifier_type<<std::endl;
+  //      std::cout<<"found param: "<<head->symbolTable.identifier_type<<std::endl;
         //printTable(head);
         return head;
 

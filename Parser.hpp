@@ -94,6 +94,9 @@ public:
     //function to evaluate a post fix expression of token in a vector
     bool postFixEvalBool(std::vector<Token> postfix,int callStartAddress);
 
+    //Function to evaluate a post fix expression (for array of chars)
+    void postFixEvalChar(std::vector<Token> postfix,int callStartAddress);
+
     //interprets the code
     void interpret();
     

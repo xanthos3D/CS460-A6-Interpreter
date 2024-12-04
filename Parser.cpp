@@ -1197,7 +1197,7 @@ void Parser::identifier_list() {
     if(tokenVector[index].isIdentifier()){
 
         new_symbol_table.identifier_name = tokenVector[index].getTokenString();
-        std::cout<<"inserting symbol: "<<new_symbol_table.identifier_name <<std::endl;
+  //      std::cout<<"inserting symbol: "<<new_symbol_table.identifier_name <<std::endl;
 
         if(inDeclaration == true){
             symbol_table_list.insertSymbol(new_symbol_table,SymbolLocation);
@@ -1617,11 +1617,11 @@ void Parser::postFixEval(std::vector<Token> postfix,int callStartAddress){
 void Parser::postFixEvalChar(std::vector<Token> postfix,int callStartAddress){
     //stack to store operations
     std::stack<int> evalStack;
-    std::cout<<"Tokens in Operation"<<std::endl;
+ //   std::cout<<"Tokens in Operation"<<std::endl;
     for (int i = 0; i < postfix.size(); i++) {
         std::cout<<postfix[i].getTokenString()<<" ";
     }
-    std::cout<<""<<std::endl;
+ //   std::cout<<""<<std::endl;
     //loop through vector of tokens
     for (int i = 1; i < postfix.size(); i++) {
         //If its a double quote then we evaluate the string by separating into chars and skip quotes on either side

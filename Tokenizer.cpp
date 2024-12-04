@@ -239,7 +239,7 @@ Token Tokenizer::getToken() {
 
             return token;
         }else if(c == '>'){
-            std::cout<<"found > "<<std::endl;
+ //           std::cout<<"found > "<<std::endl;
             if(inputStream.peek() == '='){
                 //eat up next input
                 inputStream.get(c);

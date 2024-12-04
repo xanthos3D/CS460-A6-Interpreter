@@ -1174,7 +1174,7 @@ void Parser::identifier_and_identifier_array_list() {
         identifier();
 
     }else{
-        std::cout<<"flagging to find comma, esaping identifier_and_identifier_array_list: "<<std::endl;
+   //     std::cout<<"flagging to find comma, esaping identifier_and_identifier_array_list: "<<std::endl;
         //throw std::runtime_error("Expected an identifier, but got '" + tokenVector[index].getTokenString() + "'");
     }
 
@@ -1417,7 +1417,7 @@ CST* Parser::convertToAST(){
 }
 
 void Parser::assignAddress(){
-    std::cout<<"starting adressing of ast"<<std::endl;
+ //   std::cout<<"starting adressing of ast"<<std::endl;
     assignAddressHelper(cst->getRoot(), 0);
 }
 //function applies a address to every node in our ast
@@ -2186,7 +2186,7 @@ void Parser::interpret() {
                 //may need to parse through token string to put variable in the correct places.
                 //attempting to replace %d and %s with tokens
         //        std::cout<<"attempting print " <<std::endl;
-                std::cout << statement << std::endl;
+        //        std::cout << statement << std::endl;
                 int vecInt = 0;
                 size_t index = 0;
                 //replace %d in printf
@@ -2240,7 +2240,7 @@ void Parser::interpret() {
                     //Advance index forward so the next iteration doesn't pick it up as well.
                     index += 1;
                 }
-                std::cout << test << std::endl;
+                std::cout << test;
                 callStack.back()++;
 
             // for the for loop we need to do the same logic as our assign case for parts 1 and 3.

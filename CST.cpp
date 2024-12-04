@@ -79,12 +79,12 @@ void CST::printTree(){
         CSTNode* current = q.front();
         //checks if its a child, if yess then it drops to a new line
         if ( current->isChild() ){
-            std::cout <<std::endl;
-            std::cout <<" |"<<std::endl;
-            std::cout <<"\\|/";
-            std::cout << "\n" + current->getToken().getTokenString()<< " --> ";
+      //      std::cout <<std::endl;
+        //    std::cout <<" |"<<std::endl;
+          //  std::cout <<"\\|/";
+            //std::cout << "\n" + current->getToken().getTokenString()<< " --> ";
         } else {
-            std::cout << current->getToken().getTokenString() << " --> ";
+            //std::cout << current->getToken().getTokenString() << " --> ";
         }
         q.pop();
 
@@ -136,7 +136,7 @@ CSTNode* CST::getNodeAtAddress(int searchAddress){
     }
 
     //fail case
-    std::cout<<"searched for Address: "<<searchAddress<<" but could not find it in AST"<<std::endl;
+//    std::cout<<"searched for Address: "<<searchAddress<<" but could not find it in AST"<<std::endl;
     throw;
     return root;
 }
@@ -186,21 +186,21 @@ void CST::cstToAst(){
         if ( current->isChild() || (current->getLeft() == nullptr && current->getRight() == nullptr) ){
             //in here we want to process the line we just recieved
             //print out our line to see what it is.
-            std::cout<<"line: "<<std::endl;
+   //         std::cout<<"line: "<<std::endl;
             for(int i = 0;i < lineByLine.size();i++){
-                std::cout<<lineByLine[i].getTokenString()<<"->";
+   //             std::cout<<lineByLine[i].getTokenString()<<"->";
             }
-            std::cout<<std::endl;
+     //       std::cout<<std::endl;
 
             //if the front of our vector is a identifier with the
             if(lineByLine.front().isIdentifier() && (lineByLine.front().getTokenString() == "function" || lineByLine.front().getTokenString() == "procedure")){
 
                 //insert "DECLARATION" token, and progress to next line.
-                std::cout<<"found DECLARATION with string: "<<lineByLine.front().getTokenString() <<std::endl;
+      //          std::cout<<"found DECLARATION with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token.setIdentifier("DECLARATION");
 
-                std::cout<<"lineByLine.front().getTokenString(): "<<lineByLine.front().getTokenString()<<std::endl;
+  //              std::cout<<"lineByLine.front().getTokenString(): "<<lineByLine.front().getTokenString()<<std::endl;
 
                 //if the token is procedure, then set the token to be the main
                 if(lineByLine.front().getTokenString() == "procedure" ){
@@ -219,7 +219,7 @@ void CST::cstToAst(){
                     //otherwise we have a function so set it as such.
                 }else{
                     token.setisFunction();
-                    std::cout<<"found function lineByLine[1].getTokenString(): "<<lineByLine[1].getTokenString()<<std::endl;
+ //                   std::cout<<"found function lineByLine[1].getTokenString(): "<<lineByLine[1].getTokenString()<<std::endl;
                     token.setFunctionName(lineByLine[2].getTokenString());
                 }
 
@@ -234,7 +234,7 @@ void CST::cstToAst(){
                 //insert "DECLARATION" token, and progress to next line.
                 for(int i = 0;i < lineByLine.size();i++){
                     if(lineByLine[i].isIdentifier() && (lineByLine[i].getTokenString() == "int" || lineByLine[i].getTokenString() == "string"||lineByLine[i].getTokenString() == "char" )|| lineByLine[i].isComma() || lineByLine[i].getTokenString() == "bool"){
-                        std::cout<<"found DECLARATION with string: "<<lineByLine[i].getTokenString() <<std::endl;
+    //                    std::cout<<"found DECLARATION with string: "<<lineByLine[i].getTokenString() <<std::endl;
                         Token token(lineByLine[i].getLineNum(), lineByLine[i].getCharPos());
                         token.setIdentifier("DECLARATION");
 
@@ -251,7 +251,7 @@ void CST::cstToAst(){
             }else if(lineByLine.front().isIdentifier() && lineByLine.front().getTokenString() == "if" ){
 
                 //insert "IF" token
-                std::cout<<"found IF with string: "<<lineByLine.front().getTokenString() <<std::endl;
+    //            std::cout<<"found IF with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token.setIdentifier("IF");
                 addChild(astRoot,token);
@@ -263,21 +263,21 @@ void CST::cstToAst(){
                 //fill important tokens iwth the tokens we care about
                 for(int i = 1;i < lineByLine.size();i++){
                     if(tokenOfInterest(lineByLine[i])){
-                        std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
+   //                     std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
                         importantTokens.push_back(lineByLine[i]);
                     }
                 }
 
                 //test print out
                 for(int i = 0;i < importantTokens.size();i++){
-                    std::cout<<importantTokens[i].getTokenString()<<"->";
+   //                 std::cout<<importantTokens[i].getTokenString()<<"->";
                 }
                 //apply yards algorithm on those operations
                 std::vector<Token> postfix = yardAlgorithm(importantTokens);
 
                 //insert them into our ast and move to next line.
                 for(int i = 0;i < postfix.size();i++) {
-                    std::cout << postfix[i].getTokenString() << " ->";
+    //                std::cout << postfix[i].getTokenString() << " ->";
                     addSibling(astRoot, postfix[i]);
                 }
 
@@ -285,7 +285,7 @@ void CST::cstToAst(){
             }else if(lineByLine.front().isIdentifier() && lineByLine.front().getTokenString() == "else" ){
 
                 //insert "ELSE" token
-                std::cout<<"found ELSE with string: "<<lineByLine.front().getTokenString() <<std::endl;
+       //         std::cout<<"found ELSE with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token.setIdentifier("ELSE");
                 addChild(astRoot,token);
@@ -298,7 +298,7 @@ void CST::cstToAst(){
                 //loop through to get each foor loop part note, each part goes down as a left child of the previous statement.
 
                 //insert "FOR EXPRESSION 1" token with the postfix operations after it.
-                std::cout<<"found FOR EXPRESSION 1 with string: "<<lineByLine.front().getTokenString() <<std::endl;
+      //          std::cout<<"found FOR EXPRESSION 1 with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token1(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token1.setIdentifier("FOR EXPRESSION 1");
                 addChild(astRoot,token1);
@@ -310,7 +310,7 @@ void CST::cstToAst(){
                 for(int i = 2;i < lineByLine.size();i++){
                     keepTrack = i;
                     if(tokenOfInterest(lineByLine[i])){
-                        std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
+        //                std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
                         importantTokens.push_back(lineByLine[i]);
                     }
                     if(lineByLine[i].isSemicolon())
@@ -319,21 +319,21 @@ void CST::cstToAst(){
 
                 //test print out
                 for(int i = 0;i < importantTokens.size();i++){
-                    std::cout<<importantTokens[i].getTokenString()<<"->";
+           //         std::cout<<importantTokens[i].getTokenString()<<"->";
                 }
                 //apply yards algorithm on those operations
                 std::vector<Token> postfix = yardAlgorithm(importantTokens);
 
                 //insert them into our ast and move to next line.
                 for(int i = 0;i < postfix.size();i++) {
-                    std::cout << postfix[i].getTokenString() << " ->";
+       //             std::cout << postfix[i].getTokenString() << " ->";
                     addSibling(astRoot, postfix[i]);
                 }
 
                 //lineByLine.clear();
 
                 //insert "FOR EXPRESSION 2" token with the postfix operations after it.
-                std::cout<<"found FOR EXPRESSION 2 with string: "<<lineByLine.front().getTokenString() <<std::endl;
+      //          std::cout<<"found FOR EXPRESSION 2 with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token2(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token2.setIdentifier("FOR EXPRESSION 2");
                 addChild(astRoot,token2);
@@ -343,7 +343,7 @@ void CST::cstToAst(){
                 for(int i = keepTrack + 1;i < lineByLine.size();i++){
                     keepTrack = i;
                     if(tokenOfInterest(lineByLine[i])){
-                        std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
+       //                 std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
                         importantTokens.push_back(lineByLine[i]);
                     }
                     if(lineByLine[i].isSemicolon())
@@ -352,19 +352,19 @@ void CST::cstToAst(){
 
                 //test print out
                 for(int i = 0;i < importantTokens.size();i++){
-                    std::cout<<importantTokens[i].getTokenString()<<"->";
+       //             std::cout<<importantTokens[i].getTokenString()<<"->";
                 }
                 //apply yards algorithm on those operations
                 postfix = yardAlgorithm(importantTokens);
 
                 //insert them into our ast and move to next line.
                 for(int i = 0;i < postfix.size();i++) {
-                    std::cout << postfix[i].getTokenString() << " ->";
+      //              std::cout << postfix[i].getTokenString() << " ->";
                     addSibling(astRoot, postfix[i]);
                 }
 
                 //insert "FOR EXPRESSION 3" token with the postfix operations after it.
-                std::cout<<"found FOR EXPRESSION 3 with string: "<<lineByLine.front().getTokenString() <<std::endl;
+     //           std::cout<<"found FOR EXPRESSION 3 with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token3(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token3.setIdentifier("FOR EXPRESSION 3");
                 addChild(astRoot,token3);
@@ -373,21 +373,21 @@ void CST::cstToAst(){
                 //fill important tokens iwth the tokens we care about
                 for(int i = keepTrack + 1;i < lineByLine.size() - 1;i++){
                     if(tokenOfInterest(lineByLine[i])){
-                        std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
+      //                  std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
                         importantTokens.push_back(lineByLine[i]);
                     }
                 }
 
                 //test print out
                 for(int i = 0;i < importantTokens.size();i++){
-                    std::cout<<importantTokens[i].getTokenString()<<"->";
+       //             std::cout<<importantTokens[i].getTokenString()<<"->";
                 }
                 //apply yards algorithm on those operations
                 postfix = yardAlgorithm(importantTokens);
 
                 //insert them into our ast and move to next line.
                 for(int i = 0;i < postfix.size();i++) {
-                    std::cout << postfix[i].getTokenString() << " ->";
+      //              std::cout << postfix[i].getTokenString() << " ->";
                     addSibling(astRoot, postfix[i]);
                 }
 
@@ -397,7 +397,7 @@ void CST::cstToAst(){
             }else if(lineByLine.front().isIdentifier() && lineByLine.front().getTokenString() == "while" ){
 
                 //insert "WHILE" token
-                std::cout<<"found WHILE with string: "<<lineByLine.front().getTokenString() <<std::endl;
+       //         std::cout<<"found WHILE with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token.setIdentifier("WHILE");
                 addChild(astRoot,token);
@@ -409,21 +409,21 @@ void CST::cstToAst(){
                 //fill important tokens iwth the tokens we care about
                 for(int i = 1;i < lineByLine.size();i++){
                     if(tokenOfInterest(lineByLine[i])){
-                        std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
+      //                  std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
                         importantTokens.push_back(lineByLine[i]);
                     }
                 }
 
                 //test print out
                 for(int i = 0;i < importantTokens.size();i++){
-                    std::cout<<importantTokens[i].getTokenString()<<"->";
+       //             std::cout<<importantTokens[i].getTokenString()<<"->";
                 }
                 //apply yards algorithm on those operations
                 std::vector<Token> postfix = yardAlgorithm(importantTokens);
 
                 //insert them into our ast and move to next line.
                 for(int i = 0;i < postfix.size();i++) {
-                    std::cout << postfix[i].getTokenString() << " ->";
+        //            std::cout << postfix[i].getTokenString() << " ->";
                     addSibling(astRoot, postfix[i]);
                 }
 
@@ -431,7 +431,7 @@ void CST::cstToAst(){
             }else if(lineByLine.front().isIdentifier() && lineByLine.front().getTokenString() == "printf" ){
 
                 //insert "PRINTF" token
-                std::cout<<"found PRINTF with string: "<<lineByLine.front().getTokenString() <<std::endl;
+        //        std::cout<<"found PRINTF with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token.setIdentifier("PRINTF");
                 addChild(astRoot,token);
@@ -444,21 +444,21 @@ void CST::cstToAst(){
                 //fill important tokens iwth the tokens we care about
                 for(int i = 1;i < lineByLine.size();i++){
                     if(tokenOfInterest(lineByLine[i])){
-                        std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
+             //           std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
                         importantTokens.push_back(lineByLine[i]);
                     }
                 }
 
                 //test print out
                 for(int i = 0;i < importantTokens.size();i++){
-                    std::cout<<importantTokens[i].getTokenString()<<"->";
+             //       std::cout<<importantTokens[i].getTokenString()<<"->";
                 }
                 //apply yards algorithm on those operations
                 std::vector<Token> postfix = yardAlgorithm(importantTokens);
 
                 //insert them into our ast and move to next line.
                 for(int i = 0;i < postfix.size();i++) {
-                    std::cout << postfix[i].getTokenString() << " -> ";
+               //     std::cout << postfix[i].getTokenString() << " -> ";
                     addSibling(astRoot, postfix[i]);
                 }
 
@@ -467,7 +467,7 @@ void CST::cstToAst(){
             }else if(lineByLine.front().isIdentifier() && lineByLine.front().getTokenString() == "return" ) {
 
                 //insert "RETURN" token
-                std::cout << "found RETURN with string: " << lineByLine.front().getTokenString() << std::endl;
+               // std::cout << "found RETURN with string: " << lineByLine.front().getTokenString() << std::endl;
                 Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token.setIdentifier("RETURN");
                 addChild(astRoot, token);
@@ -479,21 +479,21 @@ void CST::cstToAst(){
                 //fill important tokens iwth the tokens we care about
                 for(int i = 1;i < lineByLine.size();i++){
                     if(tokenOfInterest(lineByLine[i])){
-                        std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
+                       // std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
                         importantTokens.push_back(lineByLine[i]);
                     }
                 }
 
                 //test print out
                 for(int i = 0;i < importantTokens.size();i++){
-                    std::cout<<importantTokens[i].getTokenString()<<"->";
+      //              std::cout<<importantTokens[i].getTokenString()<<"->";
                 }
                 //apply yards algorithm on those operations
                 std::vector<Token> postfix = yardAlgorithm(importantTokens);
 
                 //insert them into our ast and move to next line.
                 for(int i = 0;i < postfix.size();i++) {
-                    std::cout << postfix[i].getTokenString() << " ->";
+       //             std::cout << postfix[i].getTokenString() << " ->";
                     addSibling(astRoot, postfix[i]);
                 }
 
@@ -502,7 +502,7 @@ void CST::cstToAst(){
             }else if(lineByLine.front().isIdentifier() && lineByLine[1].isLParen() ) {
 
                 //insert "CALL" token
-                std::cout << "found CALL with string: " << lineByLine.front().getTokenString() << std::endl;
+       //         std::cout << "found CALL with string: " << lineByLine.front().getTokenString() << std::endl;
                 Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token.setIdentifier("CALL");
                 addChild(astRoot, token);
@@ -514,21 +514,21 @@ void CST::cstToAst(){
                 //fill important tokens iwth the tokens we care about
                 for(int i = 0;i < lineByLine.size();i++){
                     if(tokenOfInterest(lineByLine[i])){
-                        std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
+       //                 std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
                         importantTokens.push_back(lineByLine[i]);
                     }
                 }
 
                 //test print out
                 for(int i = 0;i < importantTokens.size();i++){
-                    std::cout<<importantTokens[i].getTokenString()<<"->";
+       //             std::cout<<importantTokens[i].getTokenString()<<"->";
                 }
                 //apply yards algorithm on those operations
                 std::vector<Token> postfix = yardAlgorithm(importantTokens);
 
                 //insert them into our ast and move to next line.
                 for(int i = 0;i < postfix.size();i++) {
-                    std::cout << postfix[i].getTokenString() << " ->";
+        //            std::cout << postfix[i].getTokenString() << " ->";
                     addSibling(astRoot, postfix[i]);
                 }
 
@@ -536,7 +536,7 @@ void CST::cstToAst(){
                 //if we find a brace
             }else if(lineByLine.front().isLBrace()){
                 //insert "BEGIN BLOCK" token, and progress to next line.
-                std::cout<<"found BEGIN BLOCK with string: "<<lineByLine.front().getTokenString() <<std::endl;
+        //        std::cout<<"found BEGIN BLOCK with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token.setIdentifier("BEGIN BLOCK");
                 addChild(astRoot,token);
@@ -546,7 +546,7 @@ void CST::cstToAst(){
             }else if(lineByLine.front().isRBrace()){
 
                 //insert "END BLOCK" token, and progress to next line.
-                std::cout<<"found END BLOCK with string: "<<lineByLine.front().getTokenString() <<std::endl;
+        //        std::cout<<"found END BLOCK with string: "<<lineByLine.front().getTokenString() <<std::endl;
                 Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                 token.setIdentifier("END BLOCK");
 
@@ -560,7 +560,7 @@ void CST::cstToAst(){
                 if(lineByLine[1].isAssignmentOperator() || lineByLine[4].isAssignmentOperator()){
 
                     //make start to assignment
-                    std::cout<<"found ASSIGNMENT with string: "<<lineByLine.front().getTokenString() <<std::endl;
+          //          std::cout<<"found ASSIGNMENT with string: "<<lineByLine.front().getTokenString() <<std::endl;
                     Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
                     token.setIdentifier("ASSIGNMENT");
                     addChild(astRoot,token);
@@ -571,14 +571,14 @@ void CST::cstToAst(){
                     //fill important tokens iwth the tokens we care about
                     for(int i = 0;i < lineByLine.size();i++){
                         if(tokenOfInterest(lineByLine[i])){
-                            std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
+         //                   std::cout<<"adding token to important tokens: "<<lineByLine[i].getTokenString() <<std::endl;
                             importantTokens.push_back(lineByLine[i]);
                         }
                     }
 
                     //test print out
                     for(int i = 0;i < importantTokens.size();i++){
-                        std::cout<<importantTokens[i].getTokenString()<<"->";
+         //               std::cout<<importantTokens[i].getTokenString()<<"->";
                     }
 
                     //call yard algorithm
@@ -586,7 +586,7 @@ void CST::cstToAst(){
 
                     //test print out and push onto the ast
                     for(int i = 0;i < postfix.size();i++){
-                        std::cout<<postfix[i].getTokenString()<<"->";
+        //                std::cout<<postfix[i].getTokenString()<<"->";
                         addSibling(astRoot,postfix[i]);
                     }
                 }
@@ -622,7 +622,7 @@ void CST::cstToAst(){
             //queue will become empty and won't be able to go through the while loop again
         else if ( current->getToken().isRBrace()){
             //insert "END BLOCK" token, and progress to next line.
-            std::cout<<"found END BLOCK with string: "<<lineByLine.front().getTokenString() <<std::endl;
+       //     std::cout<<"found END BLOCK with string: "<<lineByLine.front().getTokenString() <<std::endl;
             Token token(lineByLine.front().getLineNum(), lineByLine.front().getCharPos());
             token.setIdentifier("END BLOCK");
 
@@ -635,7 +635,7 @@ void CST::cstToAst(){
 
     root = astRoot;
 
-    std::cout<<"Successfully Created AST ------------------------------------------------------"<<std::endl;
+ //   std::cout<<"Successfully Created AST ------------------------------------------------------"<<std::endl;
 
 }
 
@@ -666,7 +666,7 @@ std::vector<Token> CST::yardAlgorithm (std::vector<Token>& infix){
         }else if ((infix[i].isInt())    || (infix[i].isIdentifier()) || /*(infix[i].isSingleQuote()) || (infix[i].isDoubleQuote()) ||*/
                   (infix[i].isString())/* || (infix[i].isLBracket())   || (infix[i].isRBracket())*/){
             //display token
-            std::cout<<"here!"<<std::endl;
+       //     std::cout<<"here!"<<std::endl;
             infix[i].print();
             postfix.push_back(infix[i]);
 

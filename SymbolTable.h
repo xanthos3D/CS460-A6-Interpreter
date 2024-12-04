@@ -52,7 +52,7 @@ public:
     }
     void setAddress(SymbolNode* current, int address ) {
         current->_address = address;
-        std::cout<<"setting address in symbol node current->_address: "<<current->_address<<std::endl;
+ //       std::cout<<"setting address in symbol node current->_address: "<<current->_address<<std::endl;
     }
 
 

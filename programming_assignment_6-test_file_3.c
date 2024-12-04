@@ -58,7 +58,7 @@ procedure main (void)
   int counter;
 
   counter = 1;
-  while (counter <= 10)
+  while (counter <= 100)
   {
     fizzbuzz (counter);
     counter = counter + 1;

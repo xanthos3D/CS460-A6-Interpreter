@@ -7,7 +7,7 @@ Anthony Manese
 
 how to compile program through terminal
 1. g++ main.cpp Token.cpp Tokenizer.cpp Parser.cpp CST.cpp SymbolTable.cpp
-2. ./a.out programming_assignment_6-test_file_1.c
+2. ./INTERP programming_assignment_6-test_file_1.c
 
 how to run makefile
 1.  make
@@ -64,14 +64,14 @@ int main(int argc, char *argv[]) {
     }
 
     inputStream.close();
-    std::cout << "found file: " <<argv[1] << std::endl;
+    //std::cout << "found file: " <<argv[1] << std::endl;
     string filename = argv[1];
     filename.pop_back();
     filename.pop_back();
 
     //function to remove comments
     string output = commentParser(inputStream,argv[1]);
-    std::cout<<"Removed comments in program -------------------------------------------------------"<<std::endl;
+ //   std::cout<<"Removed comments in program -------------------------------------------------------"<<std::endl;
 
     string tokenizeFile = filename + " without comments.c";
     ofstream result("./" + tokenizeFile, ios::out);
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     //function to get tokens out of comment free file
     std::vector<Token> tokenVector = buildTokenVector(tokenizer);
 
-    std::cout<<"Tokenized Program ------------------------------------------------------"<<std::endl;
+//    std::cout<<"Tokenized Program ------------------------------------------------------"<<std::endl;
 
     //make the parse object, passing it in our token vector.
     Parser CSTparser(tokenVector);
@@ -92,25 +92,27 @@ int main(int argc, char *argv[]) {
     CST* tree = CSTparser.parse();
     //tree->printTree();
 
-    CSTparser.printTree();
-    std::cout<<"Sucessfully Created CST ------------------------------------------------------"<<std::endl;
+ //   CSTparser.printTree();
+ //   std::cout<<"Sucessfully Created CST ------------------------------------------------------"<<std::endl;
 
-    CSTparser.PrintSymbolTableLL();
-    std::cout<<"Sucessfully Created Symbol Table Linked List ------------------------------------------------------"<<std::endl;
+//    CSTparser.PrintSymbolTableLL();
+    
+  //  std::cout<<"Sucessfully Created Symbol Table Linked List ------------------------------------------------------"<<std::endl;
 
     //call our cst function to convert our cst to ast
     CST* AST = CSTparser.convertToAST();
 
-    CSTparser.printTree();
-    std::cout<<"Sucessfully Created Abstract Syntax Tree List ------------------------------------------------------"<<std::endl;
+    //
+    // CSTparser.printTree();
+ //   std::cout<<"Sucessfully Created Abstract Syntax Tree List ------------------------------------------------------"<<std::endl;
 
-    std::cout<<"attempting to create interpreter"<<std::endl;
+ //   std::cout<<"attempting to create interpreter"<<std::endl;
 
     //loop through the ast, assigning the tokens in the ast with adresses
     CSTparser.assignAddress();
-    std::cout<<"Sucessfully Addressed AST ------------------------------------------------------"<<std::endl;
+ //   std::cout<<"Sucessfully Addressed AST ------------------------------------------------------"<<std::endl;
     CSTparser.interpret();
-    
+
     //interpreter.assignAddress();
     //interpreter.interpret();
 
@@ -151,10 +153,10 @@ function to get tokens loop through file getting tokens from the tokenizer until
 string parseTokens(Tokenizer& tempTokenizer){
 
 
-    cout<< "Token list:"<<endl;
+ //   cout<< "Token list:"<<endl;
 
     std::string file = "";
-    file+= "\nToken list:\n\n";
+ //   file+= "\nToken list:\n\n";
 
     //gets the first token of the file
     Token tempToken = tempTokenizer.getToken();
@@ -307,7 +309,7 @@ string commentParser(std::ifstream& inputStream,string fileName){
     inputStream.close();
 
     cout<<endl;
-    cout<<"==================output file=================="<< endl;
+ //   cout<<"==================output file=================="<< endl;
     cout<< file;
 
     return file;

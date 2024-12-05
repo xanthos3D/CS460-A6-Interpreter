@@ -1,3 +1,4 @@
+
 #ifndef CS460_A2_TOKENIZER_CSTNODE_HPP
 #define CS460_A2_TOKENIZER_CSTNODE_HPP
 #include <iostream>
@@ -41,7 +42,7 @@ CstNode class
 class CSTNode {
 public:
     CSTNode(const Token& token) : token(token), _leftChild(nullptr), _rightSibling(nullptr),
-                child(false), location(-1){}
+                                  child(false), location(-1){}
 
     CSTNode* getLeft() { return _leftChild;}
     CSTNode* getRight() { return _rightSibling;}
@@ -53,6 +54,18 @@ public:
     void setChild(bool temp)   { child = temp; }        // this is to know when we are in a new statemnt
     // and our tree can refelct when to drop a level
     bool isChild() { return child; }
+
+
+
+    void printNode() {
+        token.print();
+    }
+
+
+//    Instruction getInstructionAt(int i) {
+//        //placeholder til we figure out how to give each important part an instruction
+//        return Instruction(ADD);
+//    }
 
 private:
     Token token;
